@@ -1,0 +1,107 @@
+{
+  "id": "2698396",
+  "name": "酒店后台",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "5371582",
+      "name": "查看密码",
+      "font_class": "huabanfuben",
+      "unicode": "e671",
+      "unicode_decimal": 58993
+    },
+    {
+      "icon_id": "11239756",
+      "name": "查看密码",
+      "font_class": "chakanmima",
+      "unicode": "e635",
+      "unicode_decimal": 58933
+    },
+    {
+      "icon_id": "6349609",
+      "name": "财务管理",
+      "font_class": "caiwuguanli",
+      "unicode": "e646",
+      "unicode_decimal": 58950
+    },
+    {
+      "icon_id": "8348114",
+      "name": "订单—列表",
+      "font_class": "dingdanliebiao",
+      "unicode": "e719",
+      "unicode_decimal": 59161
+    },
+    {
+      "icon_id": "19542633",
+      "name": "订单管理",
+      "font_class": "dingdanguanli",
+      "unicode": "e616",
+      "unicode_decimal": 58902
+    },
+    {
+      "icon_id": "122721",
+      "name": "account",
+      "font_class": "account",
+      "unicode": "e6b8",
+      "unicode_decimal": 59064
+    },
+    {
+      "icon_id": "332903",
+      "name": "remind",
+      "font_class": "remind",
+      "unicode": "e713",
+      "unicode_decimal": 59155
+    },
+    {
+      "icon_id": "364801",
+      "name": "map",
+      "font_class": "map",
+      "unicode": "e715",
+      "unicode_decimal": 59157
+    },
+    {
+      "icon_id": "4765881",
+      "name": "dashboard",
+      "font_class": "dashboard",
+      "unicode": "e78b",
+      "unicode_decimal": 59275
+    },
+    {
+      "icon_id": "4767050",
+      "name": "indent",
+      "font_class": "indent",
+      "unicode": "e7f3",
+      "unicode_decimal": 59379
+    },
+    {
+      "icon_id": "4767051",
+      "name": "outdent",
+      "font_class": "outdent",
+      "unicode": "e7f4",
+      "unicode_decimal": 59380
+    },
+    {
+      "icon_id": "4936656",
+      "name": "home-fill",
+      "font_class": "home-fill",
+      "unicode": "e867",
+      "unicode_decimal": 59495
+    },
+    {
+      "icon_id": "4936694",
+      "name": "setting-fill",
+      "font_class": "setting-fill",
+      "unicode": "e871",
+      "unicode_decimal": 59505
+    },
+    {
+      "icon_id": "5961366",
+      "name": "列表",
+      "font_class": "liebiao",
+      "unicode": "ec6b",
+      "unicode_decimal": 60523
+    }
+  ]
+}
