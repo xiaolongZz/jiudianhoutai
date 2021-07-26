@@ -163,7 +163,6 @@ export default {
 </script>
 <style lang="less" scoped>
 .el-card {
-  margin-top: 10px;
   .title {
     padding-left: 10px;
     text-align: left;

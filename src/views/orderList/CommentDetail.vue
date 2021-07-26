@@ -2,8 +2,8 @@
   <div>
     <el-card>
       <el-breadcrumb separator-class="el-icon-arrow-right" class="title">
-        <el-breadcrumb-item :to="{ path: '/orderlist' }">订单列表</el-breadcrumb-item>
-        <el-breadcrumb-item :to="{ path: '/orderlist/evaluationmanagement' }">评价管理</el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ path: '/orderList' }">订单列表</el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ path: '/comment' }">评价管理</el-breadcrumb-item>
         <el-breadcrumb-item>详情</el-breadcrumb-item>
       </el-breadcrumb>
       <div class="main">
@@ -97,7 +97,6 @@ export default {
  
  <style lang="less" scoped>
 .el-card {
-  padding-bottom: 50px;
   .title {
     padding-left: 10px;
     text-align: left;

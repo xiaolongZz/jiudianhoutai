@@ -34,6 +34,7 @@
             @keyup.enter.native="handleLogin"
             prefix-icon="el-icon-lock"
           />
+          <i class="iconfont icon-huabanfuben" @click="lookingpsw()"></i>
         </el-form-item>
         <!-- 商家登录时的短信验证码登录框 -->
         <el-form-item prop="verifyCode" v-if="showVerificationCode">
@@ -69,7 +70,7 @@ export default {
     return {
       // 登录表单数据
       loginForm: {
-        account: '13122222222', // 13122222222     //13353221241
+        account: '13142224222', // 13122222222     //13353221241
         password: '123456',
         verifyCode: '00000',
       },
@@ -152,18 +153,10 @@ export default {
         if (this.showVerificationCode) {
           //  const data1 =  await passReset (this.loginForm)
           await bizLogin(this.loginForm).then((res) => {
-            this.$message.success('登录成功~')
             window.sessionStorage.setItem('token', res.data.token)
-            window.sessionStorage.setItem('userInfo', JSON.stringify(res.data.user))
-            let menu = []
-            for (let i in res.data.menu) {
-              menu.push(res.data.menu[i])
-            }
-            console.log(menu)
-            window.sessionStorage.setItem('menu', JSON.stringify(menu))
-            this.setState([{ name: 'userinfo', value: res.data.user }])
+            this.$message.success('登录成功~')
           })
-          this.$router.push({ path: '/home' })
+          this.$router.push({ path: '/index' })
         }
         if (!this.showVerificationCode) {
           const data1 = await passReset(this.loginForm)
@@ -172,6 +165,15 @@ export default {
         }
       })
     },
+    lookingpsw(){
+      if(this.passwordType == 'password'){
+        console.log(111);
+        this.passwordType = 'text'
+      }
+       if(this.passwordType == 'text'){
+        this.passwordType = 'password'
+      }
+    }
   },
 }
 </script>
@@ -249,6 +251,11 @@ export default {
         right: 100px;
         background-color: #2d3a4b;
         color: #fff;
+      }
+      .iconfont{
+        position:absolute;
+        right: 25px;
+        cursor: pointer;
       }
     }
   }

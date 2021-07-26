@@ -20,7 +20,7 @@
           <!-- <el-button slot="reference">hover 激活</el-button> -->
           <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" slot="reference"></el-avatar>
         </el-popover>
-        <i>{{ userInfo.user_name }}</i>
+        <i>{{ hotelInfo.chinese_name }}</i>
       </div>
     </el-header>
     <!-- 页面主体区域 -->
@@ -63,12 +63,14 @@
   </el-container>
 </template>
 <script>
+import { getUserInfo } from '../assets/api/index.js'
 import { mapState, mapMutations } from 'vuex'
 export default {
   data() {
     return {
       menuList: [],
       userInfo: {},
+      hotelInfo: {},
       // 图标
       iconsObj: {
         1: 'iconfont icon-dashboard',
@@ -84,12 +86,22 @@ export default {
     }
   },
   created() {
-    this.menuList = JSON.parse(window.sessionStorage.getItem('menu'))
-    this.userInfo = JSON.parse(window.sessionStorage.getItem('userInfo'))
-    console.log(this.menuList)
+    this.getUser()
+    this.activePath = window.sessionStorage.getItem('activePath')
+
   },
   computed: {},
   methods: {
+    async getUser() {
+      await getUserInfo().then((res) => {
+        this.menuList = res.data.menu
+        window.sessionStorage.setItem('menuList', JSON.stringify(res.data.menu))
+        this.userInfo = res.data.user
+        window.sessionStorage.setItem('userInfo', JSON.stringify(res.data.user))
+        this.hotelInfo = res.data.hotel
+        window.sessionStorage.setItem('hotelInfo', JSON.stringify(res.data.hotel))
+      })
+    },
     goHome() {
       this.$router.push('/home')
     },
@@ -118,7 +130,8 @@ export default {
   background: #6c6d6f 1%;
   display: flex;
   justify-content: space-between;
-  padding: 0 156px;
+  padding-right: 100px;
+  padding-left: 50px;
   align-items: center;
   color: #fff;
   font-size: 20px;
