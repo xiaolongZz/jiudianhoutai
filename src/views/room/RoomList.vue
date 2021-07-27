@@ -42,34 +42,46 @@
             </el-form-item>
           </el-form>
           <div class="searchBtn">
-            <el-button icon="el-icon-plus" @click="addRoom">添加客房</el-button>
-            <el-button icon="el-icon-search">查询</el-button>
-            <el-button icon="el-icon-download">导出</el-button>
-            <el-button icon="el-icon-upload">批量导出</el-button>
+            <div class="searchBtn_left">
+              <el-button @click="allRoom">全部房间</el-button>
+              <el-button @click="onlineRoom">已上架</el-button>
+              <el-button @click="enlineRoom">已下架</el-button>
+            </div>
+            <div class="searchBtn_righr">
+              <el-button icon="el-icon-plus" @click="addRoom">添加客房</el-button>
+              <el-button icon="el-icon-search">查询</el-button>
+              <el-button icon="el-icon-download">导出</el-button>
+              <el-button icon="el-icon-upload">批量导出</el-button>
+            </div>
           </div>
         </div>
-        <el-table class="roomListTable" :data="roomListData" style="width: 100%" border>
+        <el-table class="roomListTable" :data="roomListData" style="width: 100%" border @select="selectRow" @select-all="selectAllRow">
           <el-table-column type="selection" width="55"> </el-table-column>
           <el-table-column type="index" width="55"> </el-table-column>
           <el-table-column prop="room_name" label="房名" width="180"> </el-table-column>
           <el-table-column prop="price" label="价格"> </el-table-column>
           <el-table-column prop="inventory" label="库存"> </el-table-column>
-          <el-table-column prop="address" label="实际销量"> </el-table-column>
+          <el-table-column prop="sales" label="实际销量"> </el-table-column>
           <el-table-column prop="updated_at" label="创建时间"> </el-table-column>
-          <el-table-column prop="room_label" label="营销标签"> </el-table-column>
+          <el-table-column prop="room_label" label="营销标签">
+            <!-- eslint-disable-next-line -->
+            <template slot-scope="scope">
+              <el-tag v-for="item in scope.row.room_label" :key="item.index" style="margin: 0 5px">{{ item }}</el-tag>
+            </template>
+          </el-table-column>
           <el-table-column prop="address" label="操作">
             <!-- eslint-disable-next-line -->
             <template slot-scope="scope">
-              <el-button type="text" size="small" v-if="scope.row.status == 1">下架</el-button>
-              <el-button type="text" size="small" v-if="scope.row.status == 0">上架</el-button>
-              <el-button type="text" size="small">编辑</el-button>
+              <el-button type="text" size="small" v-if="scope.row.status == 1" @click="offShelfRoom(scope.row.id)">下架</el-button>
+              <el-button type="text" size="small" v-if="scope.row.status == 0" @click="onShelfRoom(scope.row.id)">上架</el-button>
+              <el-button type="text" size="small" @click="editRoom(scope.row)">编辑</el-button>
               <el-button type="text" size="small">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
         <div class="OffTheShelf">
-          <el-button>批量上架</el-button>
-          <el-button>批量下架</el-button>
+          <el-button @click="batchShelves">批量上架</el-button>
+          <el-button @click="batchOffShelf">批量下架</el-button>
           <el-button icon="el-icon-delete">删除</el-button>
         </div>
         <el-pagination
@@ -77,7 +89,7 @@
           @current-change="handleCurrentChange"
           :current-page="currentPage"
           :page-sizes="[5, 10, 20, 50]"
-          :page-size="100"
+          :page-size="10"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
         >
@@ -90,10 +102,12 @@
 </template>
 
 <script>
-import { getRoomList } from '../../assets/api/index.js'
+import { getRoomList, onShelf, offShelf, editRoom, classifySelect ,getSelectOption} from '../../assets/api/index.js'
 export default {
   data() {
     return {
+      // 查询参数对象
+      queryInfo: {},
       userInfo: {},
       tabPosition: '客房列表',
       nowtab: '客房列表',
@@ -132,59 +146,19 @@ export default {
           },
         ],
       },
-      roomOptions: [
-        {
-          value: '标间',
-          label: '标间',
-        },
-        {
-          value: '单人房',
-          label: '单人房',
-        },
-        {
-          value: '行政房',
-          label: '行政房',
-        },
-      ],
-      tagOptions: [
-        {
-          value: '全部',
-          label: '全部',
-        },
-        {
-          value: '特价房',
-          label: '特价房',
-        },
-        {
-          value: '限时取消',
-          label: '限时取消',
-        },
-        {
-          value: '可以开票',
-          label: '可以开票',
-        },
-        {
-          value: '不能取消',
-          label: '不能取消',
-        },
-         {
-          value: '免费取消',
-          label: '免费取消',
-        },
-         {
-          value: '立即确认',
-          label: '立即确认',
-        },
-      ],
+      roomOptions: [],
+      tagOptions: [],
       roomListData: [],
       // 当前页数
-      page: 1,
+      currentPage: 1,
       // 一页显示的条数
-      currentPage: 5,
+      pageSize: 10,
       // 总条数
       total: 0,
       // 上下架的状态
       status: '', //1  上架，0 下架
+      // 批量上下架数组
+      batchArr: [],
     }
   },
   created() {
@@ -196,24 +170,117 @@ export default {
       this.nowtab = tab
     },
     handleSizeChange(val) {
-      console.log(val)
+      this.pageSize = val
+      this.RoomList()
     },
     handleCurrentChange(val) {
-      this.page = val
-      console.log(val)
+      this.currentPage = val
+      this.RoomList()
     },
     async RoomList() {
       let obj = {}
       obj.hotel_id = this.userInfo.hotel_id
       obj.status = this.status
-      obj.page = this.page
-      await getRoomList(obj).then((res) => {
+      obj.page = this.currentPage
+      obj.pageSize = this.pageSize
+      this.queryInfo = obj
+      await getRoomList(this.queryInfo).then((res) => {
         this.total = res.data.total
         this.roomListData = res.data.list
       })
+      await getSelectOption({ hotel_id: this.userInfo.hotel_id }).then((res) => {
+          res.data.classify.forEach((item)=>{
+            item.value = item.name
+            item.label = item.name
+            this.roomOptions.push(item)
+          })
+           res.data.lable.forEach((item)=>{
+            item.value = item.label_name
+            item.label = item.label_name
+            this.tagOptions.push(item)
+          })
+      })
     },
     addRoom() {
-      this.$router.push('/roomList/addRoom')
+      this.$router.push({path:'/roomList/addRoom',query:{hotel_id:this.userInfo.hotel_id}})
+    },
+    async offShelfRoom(id) {
+      let idArray = []
+      idArray.push(id)
+      await offShelf({ idArray: idArray }).then((res) => {
+        this.RoomList()
+        this.$message.success(res.message)
+      })
+    },
+    async onShelfRoom(id) {
+      let idArray = []
+      idArray.push(id)
+      await onShelf({ idArray: idArray }).then((res) => {
+        this.RoomList()
+        this.$message.success(res.message)
+      })
+    },
+    async batchShelves() {
+      if (this.status === '') {
+        this.$message.warning('请先选择上/下架后再批量处理!')
+        return
+      } else if (this.status === 1) {
+        this.$message.warning('房间已处于上架状态！')
+        return
+      }
+      if (this.batchArr.length > 0) {
+        await onShelf({ idArray: this.batchArr }).then((res) => {
+          this.batchArr = []
+          this.status = ''
+          this.RoomList()
+        })
+      }
+    },
+    async batchOffShelf() {
+      if (this.status === '') {
+        this.$message.warning('请先选择上/下架后再批量处理!')
+        return
+      } else if (this.status === 0) {
+        this.$message.warning('房间已处于下架状态！')
+        return
+      }
+      if (this.batchArr.length > 0) {
+        await offShelf({ idArray: this.batchArr }).then((res) => {
+          this.batchArr = []
+          this.status = ''
+          this.RoomList()
+        })
+      }
+    },
+    allRoom() {
+      this.status = ''
+      this.RoomList()
+    },
+    onlineRoom() {
+      this.status = 1
+      this.RoomList()
+    },
+    enlineRoom() {
+      this.status = 0
+      this.RoomList()
+    },
+    selectRow(selection) {
+      let idArray = []
+      selection.forEach((element) => {
+        idArray.push(element.id)
+      })
+      this.batchArr = idArray
+    },
+    selectAllRow(selection) {
+      let idArray = []
+      selection.forEach((element) => {
+        idArray.push(element.id)
+      })
+      this.batchArr = idArray
+    },
+    async editRoom(iem) {
+      console.log(iem)
+      await editRoom()
     },
   },
 }
@@ -248,7 +315,7 @@ export default {
       .searchBtn {
         margin-top: 10px;
         display: flex;
-        justify-content: flex-end;
+        justify-content: space-between;
         .el-button {
           width: 120px;
           margin-left: 20px;

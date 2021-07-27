@@ -35,8 +35,21 @@ const routes = [
 
 ]
 
+
 const router = new VueRouter({
   routes
 })
+
+router.beforeEach((to, form, next) => {
+  // to  将要访问的函数
+  // form 代表从哪个路径跳转而来
+  // next 是个函数 表示放行
+  if (to.path === '/login') return next()
+  // 获取token
+  const tokenStr = window.sessionStorage.getItem('token')
+  if (!tokenStr) return next('/login')
+  next()
+})
+
 
 export default router
