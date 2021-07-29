@@ -13,8 +13,8 @@ let userLogin = (obj) => {
     return axios.post('/hotelv2/index/auth/userLogin', obj)
 }
 // 员工信息
-let getUserInfo = (obj) =>{
-    return axios.post('/hotelv2/index/merchant/user/getUserInfo',obj)
+let getUserInfo = (obj) => {
+    return axios.post('/hotelv2/index/merchant/user/getUserInfo', obj)
 }
 //  获取房间列表接口
 let getRoomList = (obj) => {
@@ -38,6 +38,22 @@ let classifySelect = (obj) => {
 let getSelectOption = (obj) => {
     return axios.post('/hotelv2/index/merchant/room/getSelectOption', obj)
 }
+// 获取客房信息
+let getRoomInfo = (obj) => {
+    return axios.post('/hotelv2/index/merchant/room/getDetail', obj)
+}
+// 导出客房信息
+let exportRoom = (obj) => {
+    return axios.post('/hotelv2/index/merchant/room/exportRoom', obj, { responseType: 'blob' })
+}
+// 获取七六云token
+let uploadToken = (obj) => {
+    return axios.get('hotelv2/index/qiniu/uploadToken', obj)
+}
+let deleteFile = (obj) => {
+    return axios.get('hotelv2/index/qiniu/deleteFile', obj)
+}
+
 export {
     bizLogin,
     passReset,
@@ -48,5 +64,9 @@ export {
     offShelf,
     editRoom,
     classifySelect,
-    getSelectOption
+    getSelectOption,
+    getRoomInfo,
+    exportRoom,
+    uploadToken, 
+    deleteFile
 }

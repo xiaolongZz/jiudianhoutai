@@ -21,6 +21,7 @@
               <el-date-picker
                 v-model="searchForm.addData"
                 type="daterange"
+                value-format="yyyy-MM-dd"
                 align="right"
                 unlink-panels
                 range-separator="至"
@@ -49,9 +50,9 @@
             </div>
             <div class="searchBtn_righr">
               <el-button icon="el-icon-plus" @click="addRoom">添加客房</el-button>
-              <el-button icon="el-icon-search">查询</el-button>
-              <el-button icon="el-icon-download">导出</el-button>
-              <el-button icon="el-icon-upload">批量导出</el-button>
+              <el-button icon="el-icon-search" @click="searchRoom">查询</el-button>
+              <el-button icon="el-icon-download" @click="exportroom">导出</el-button>
+              <!-- <el-button icon="el-icon-upload">批量导出</el-button> -->
             </div>
           </div>
         </div>
@@ -96,13 +97,28 @@
         </el-pagination>
       </div>
 
-      <div v-if="nowtab == '价格调整'" class="adjustmentPrice">价格调整</div>
+      <div v-if="nowtab == '价格调整'" class="adjustmentPrice">
+        <div class="top">
+          <span>跳转时间：</span>
+          <el-date-picker v-model="adjustmentTime" type="month" placeholder="请选择年月"> </el-date-picker>
+          <span>包含房间：</span>
+          <el-input style="width: 250px" placeholder="请输入房间名查询" v-model="adjustmentRoomName"></el-input>
+          <el-button type="primary" icon="el-icon-search">搜索</el-button>
+        </div>
+        <el-calendar v-model="adjustmentTime">
+          <!-- 这里使用的是 2.5 slot 语法，对于新项目请使用 2.6 slot 语法-->
+          <template slot="dateCell" slot-scope="{ date, data }">
+            <p :class="data.isSelected ? 'is-selected' : ''">{{ data.day.split('-').slice(1).join('-') }} {{ data.isSelected ? '✔️' : '' }}</p>
+          </template>
+        </el-calendar>
+        <el-date-picker type="dates" v-model="adjustmentRoomName" placeholder="选择一个或多个日期"> </el-date-picker>
+      </div>
     </el-card>
   </div>
 </template>
 
 <script>
-import { getRoomList, onShelf, offShelf, editRoom, classifySelect ,getSelectOption} from '../../assets/api/index.js'
+import { getRoomList, onShelf, offShelf, editRoom, classifySelect, getSelectOption, exportRoom } from '../../assets/api/index.js'
 export default {
   data() {
     return {
@@ -112,8 +128,13 @@ export default {
       tabPosition: '客房列表',
       nowtab: '客房列表',
       searchForm: {
-        room_name: '',
         addData: '',
+        room_name: '',
+        start_date: '',
+        finish_date: '',
+        room_label: '',
+        classify_id: '',
+        pageSize: this.pageSize,
       },
       pickerOptions: {
         shortcuts: [
@@ -159,6 +180,9 @@ export default {
       status: '', //1  上架，0 下架
       // 批量上下架数组
       batchArr: [],
+      adjustmentTime: '',
+      Increase: 0,
+      adjustmentRoomName: '',
     }
   },
   created() {
@@ -189,20 +213,20 @@ export default {
         this.roomListData = res.data.list
       })
       await getSelectOption({ hotel_id: this.userInfo.hotel_id }).then((res) => {
-          res.data.classify.forEach((item)=>{
-            item.value = item.name
-            item.label = item.name
-            this.roomOptions.push(item)
-          })
-           res.data.lable.forEach((item)=>{
-            item.value = item.label_name
-            item.label = item.label_name
-            this.tagOptions.push(item)
-          })
+        res.data.classify.forEach((item) => {
+          item.value = item.name
+          item.label = item.name
+          this.roomOptions.push(item)
+        })
+        res.data.lable.forEach((item) => {
+          item.value = item.label_name
+          item.label = item.label_name
+          this.tagOptions.push(item)
+        })
       })
     },
     addRoom() {
-      this.$router.push({path:'/roomList/addRoom',query:{hotel_id:this.userInfo.hotel_id}})
+      this.$router.push({ path: '/roomList/addRoom', query: { hotel_id: this.userInfo.hotel_id, from: 'add' } })
     },
     async offShelfRoom(id) {
       let idArray = []
@@ -278,9 +302,25 @@ export default {
       })
       this.batchArr = idArray
     },
-    async editRoom(iem) {
-      console.log(iem)
-      await editRoom()
+    editRoom(itm) {
+      this.$router.push({ path: '/roomList/addRoom', query: { hotel_id: itm.hotel_id, roomId: itm.id, from: 'edit' } })
+    },
+    async exportroom() {
+      await exportRoom({ hotel_id: this.userInfo.hotel_id }).then((res) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(res) // 转换为base64，可以直接放入a标签href
+        reader.onload = function (e) {
+          let a = document.createElement('a') // 转换完成，创建一个a标签用于下载
+          a.download = '客房列表' + '.xls'
+          a.href = e.target.result
+          document.body.appendChild(a)
+          a.click()
+          document.body.removeChild(a)
+        }
+      })
+    },
+    searchRoom() {
+      console.log(this.searchForm)
     },
   },
 }
@@ -334,6 +374,30 @@ export default {
     .el-pagination {
       margin-top: 15px;
       text-align: center;
+    }
+  }
+  .adjustmentPrice {
+    .is-selected {
+      color: #1989fa;
+    }
+    .top {
+      margin-bottom: 30px;
+      span {
+        margin-left: 20px;
+      }
+      .el-button {
+        margin-left: 15px;
+        margin-right: 50px;
+      }
+    }
+    .budge {
+      width: 10px;
+      height: 10px;
+      border-radius: 5px;
+      margin: 10px auto;
+    }
+    .blue {
+      background-color: #409eff;
     }
   }
 }

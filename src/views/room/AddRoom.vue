@@ -1,28 +1,34 @@
 <template>
   <div>
     <el-card>
+      <!-- 面包屑区域 -->
+      <el-breadcrumb separator-class="el-icon-arrow-right" class="title">
+        <el-breadcrumb-item :to="{ path: '/roomList' }">客房管理</el-breadcrumb-item>
+        <el-breadcrumb-item v-if="this.from == 'add'" :to="{ path: '/roomList/addRoom' }">添加客房</el-breadcrumb-item>
+        <el-breadcrumb-item v-if="this.from == 'edit'" :to="{ path: '/roomList/addRoom' }">编辑客房</el-breadcrumb-item>
+      </el-breadcrumb>
       <!-- 步骤条区域 -->
       <el-steps :space="200" :active="activeIndex + 0" finish-status="success" simple>
         <el-step title="基本信息"></el-step>
         <el-step title="房间信息"></el-step>
       </el-steps>
       <!-- tab 栏区域 -->
-      <el-form :model="addRoomForm" label-width="100px" label-position="left">
+      <el-form :model="roomInfo" label-width="100px" label-position="left">
         <el-tabs v-model="activeTabIndex" :tab-position="'left'" @tab-click="tabClicked">
           <el-tab-pane label="基本信息" name="0" class="tab1">
             <el-form-item label="客房名称:" prop="room_name" style="width: 20%">
-              <el-input v-model="addRoomForm.room_name"></el-input>
+              <el-input v-model="roomInfo.room_name"></el-input>
             </el-form-item>
             <div style="width: 600px" class="cancel_time">
               <el-form-item label="免费取消时间" prop="room_name">
-                <el-select v-model="addRoomForm.final_cancel_time" placeholder="请选择">
+                <el-select v-model="roomInfo.final_cancel_time" placeholder="请选择">
                   <el-option v-for="item in cancelOptions" :key="item.value" :label="item.label" :value="item.value"> </el-option>
                 </el-select>
               </el-form-item>
               <el-form-item style="width: 120px" label-width="0">
                 <el-time-select
                   style="width: 120px"
-                  v-model="addRoomForm.final_cancel_hour"
+                  v-model="roomInfo.final_cancel_hour"
                   :picker-options="{
                     start: '08:30',
                     step: '00:15',
@@ -34,16 +40,24 @@
               </el-form-item>
             </div>
             <el-form-item label="客房类型">
-              <el-select v-model="addRoomForm.name" placeholder="请选择">
-                <el-option v-for="item in nameOptions" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+              <el-select v-model="roomInfo.classify_id" placeholder="请选择">
+                <el-option v-for="item in nameOptions" :key="item.id" :label="item.name" :value="item.value"> </el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="价格:" prop="room_name" style="width: 100%"><el-input v-model="addRoomForm.room_name" style="width: 15%"></el-input></el-form-item>
-            <el-form-item label="库存:" prop="room_name" style="width: 100%"> <el-input v-model="addRoomForm.room_name" style="width: 15%"></el-input> </el-form-item>
-            <el-form-item label="入住人数:" prop="room_name" style="width: 100%"><el-input v-model="addRoomForm.room_name" style="width: 15%"></el-input> 人</el-form-item>
-            <el-form-item label="房间面积:" prop="room_name" style="width: 100%"><el-input v-model="addRoomForm.room_name" style="width: 15%"></el-input> m²</el-form-item>
+            <el-form-item label="价格:" prop="price" style="width: 100%"><el-input v-model="roomInfo.price" style="width: 15%"></el-input></el-form-item>
+            <el-form-item label="库存:" prop="inventory" style="width: 100%"> <el-input v-model="roomInfo.inventory" style="width: 15%"></el-input> </el-form-item>
+            <el-form-item label="入住人数:" prop="max_people" style="width: 100%"><el-input v-model="roomInfo.max_people" style="width: 15%"></el-input> 人</el-form-item>
+            <el-form-item label="房间面积:" prop="area" style="width: 100%"><el-input v-model="roomInfo.area" style="width: 15%"></el-input> m²</el-form-item>
             <el-form-item label="房间缩略图:" style="width: 100%">
-              <el-upload action="#" list-type="picture-card" :auto-upload="false" @before-remove="beforeRemove" @on-remove="remove">
+              <el-upload
+                action="https://up-z1.qiniup.com"
+                :file-list="roomInfo.room_pictures"
+                list-type="picture-card"
+                :data="headerObj"
+                :on-success="handleSuccess"
+                :before-upload="beforeUpload"
+                :on-remove="handleRemove"
+              >
                 <i slot="default" class="el-icon-plus"></i>
                 <div slot="file" slot-scope="{ file }">
                   <img class="el-upload-list__item-thumbnail" :src="file.url" alt="" />
@@ -61,18 +75,16 @@
                 <img width="80%" :src="dialogImageUrl" alt="" />
               </el-dialog>
             </el-form-item>
-            <el-form-item label="标签选择:" prop="room_name" style="width: 100%">
-              <el-checkbox-group v-model="checkList">
-                <el-checkbox label="复选框 A"></el-checkbox>
-                <el-checkbox label="复选框 B"></el-checkbox>
-                <el-checkbox label="复选框 C"></el-checkbox>
-                <el-checkbox label="禁用" disabled></el-checkbox>
-                <el-checkbox label="选中且禁用" disabled></el-checkbox>
+            <el-form-item label="标签选择:" prop="room_label" style="width: 100%">
+              <el-checkbox-group v-model="roomInfo.room_label">
+                <el-checkbox v-for="(item,index) in roomInfo.room_label" :key="index" :label="item">{{item}}</el-checkbox>
               </el-checkbox-group>
             </el-form-item>
-            <el-form-item label="上下架:" prop="room_name" style="width: 100%">
-              <el-radio v-model="radio" label="1" border>上架</el-radio>
-              <el-radio v-model="radio" label="2" border>下架</el-radio>
+            <el-form-item label="上下架:" prop="status" style="width: 100%">
+              <el-radio-group v-model="roomInfo.status">
+                <el-radio :label="0">上架</el-radio>
+                <el-radio :label="1">下架</el-radio>
+              </el-radio-group>
             </el-form-item>
           </el-tab-pane>
           <el-tab-pane label="房间信息" name="1">
@@ -156,20 +168,19 @@
   </div>
 </template>
 <script>
-import { classifySelect } from '../../assets/api/index.js'
+import { classifySelect, getRoomInfo, uploadToken } from '../../assets/api/index.js'
 export default {
   data() {
     return {
-      hotel_id: this.$route.query.hotel_id,
+      hotel_id: this.$route.query.hotel_id, // 酒店id
+      roomId: this.$route.query.roomId, // 房间id
+      from: this.$route.query.from, // 从哪个按钮进来的标识     add   edit
+      roomInfo: {
+        room_label:[]
+      }, // 根据酒店id查询到的房间信息
+      thumbnail:"", // 缩略图
       activeIndex: 0,
       activeTabIndex: '0',
-      addRoomForm: {
-        room_name: '',
-        final_cancel_time: '',
-        final_cancel_hour: '',
-        name: '',
-      },
-      addFormRules: {},
       cancelOptions: [
         { value: '入住当日', label: '入住当日' },
         { value: '入住前一日', label: '入住前一日' },
@@ -179,13 +190,27 @@ export default {
       nameOptions: [],
       dialogVisible: false,
       checkList: [],
-      radio: '',
+      dialogImageUrl: '',
+      headerObj: {
+        token: '',
+        key: '',
+      },
     }
   },
   created() {
     this.getclassifySelect()
+    this.getRoomInfo()
   },
   methods: {
+    async getRoomInfo() {
+      if (!this.roomId) {
+        return
+      }
+      await getRoomInfo({ id: this.roomId }).then((res) => {
+        this.roomInfo = res.data
+        this.roomInfo.room_label = res.data.room_label
+      })
+    },
     async getclassifySelect() {
       await classifySelect({ hotel_id: this.hotel_id }).then((res) => {
         res.data.forEach((ele) => {
@@ -205,6 +230,7 @@ export default {
       if (this.activeIndex === 0 && this.activeTabIndex === '0') {
         this.activeIndex++
         this.activeTabIndex = '1'
+        console.log(this.roomInfo);
       }
     },
     tabClicked() {},
@@ -212,16 +238,40 @@ export default {
       this.dialogImageUrl = file.url
       this.dialogVisible = true
     },
-    handleRemove(file) {
-      let pic = file
-      this.remove(pic)
+    async beforeUpload(file) {
+      await uploadToken().then((res) => {
+        const i = file.type.indexOf('/')
+        const picType = file.type.slice(i + 1)
+        this.headerObj.token = res.data.token
+        this.headerObj.key = res.data.key + '.' + picType
+      })
     },
-    beforeRemove(file) {},
-    remove(file) {},
+    // 监听图片上传成功的事件
+    handleSuccess(response) {
+      // 1. 拼接得到一个图片信息对象
+      const picInfo = {
+        key: response.key,
+        url: 'http://hotelv2-qiniu.shall-buy.com/' + response.key,
+      }
+      // 2. 将图片信息对象，push到pics数组中
+      this.roomInfo.room_pictures.push(picInfo)
+    },
+    handleRemove(file) {
+        //  1.获取要删除的图片的临时路径
+        const fileKey = file.key
+        //  2.从pics数组中，找到这个图片对应的索引
+        const i = this.roomInfo.room_pictures.findIndex((x) => x.key === fileKey)
+        this.roomInfo.del_picture.push(this.roomInfo.room_pictures[i].key)
+        // 3.调用数组的splice 方法，把图片信息对象从pics中删除掉
+        this.roomInfo.room_pictures.splice(i, 1)
+    },
   },
 }
 </script>
 <style lang="less" scoped>
+.el-breadcrumb {
+  margin-bottom: 50px;
+}
 .el-steps {
   width: 500px;
   margin-bottom: 50px;
