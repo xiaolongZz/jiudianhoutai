@@ -75,9 +75,9 @@
                 <img width="80%" :src="dialogImageUrl" alt="" />
               </el-dialog>
             </el-form-item>
-            <el-form-item label="标签选择:" prop="room_label" style="width: 100%">
+            <el-form-item label="标签选择:" prop="all_label" style="width: 100%">
               <el-checkbox-group v-model="roomInfo.room_label">
-                <el-checkbox v-for="(item,index) in roomInfo.room_label" :key="index" :label="item">{{item}}</el-checkbox>
+                <el-checkbox v-for="item in roomInfo.all_label" :key="item.id" :label="item.id">{{ item.label_name }}</el-checkbox>
               </el-checkbox-group>
             </el-form-item>
             <el-form-item label="上下架:" prop="status" style="width: 100%">
@@ -88,61 +88,7 @@
             </el-form-item>
           </el-tab-pane>
           <el-tab-pane label="房间信息" name="1">
-            <el-form-item label="房间设施:" prop="room_name" style="width: 100%">
-              <el-checkbox-group v-model="checkList">
-                <el-checkbox label="复选框 A"></el-checkbox>
-                <el-checkbox label="复选框 B"></el-checkbox>
-                <el-checkbox label="复选框 C"></el-checkbox>
-                <el-checkbox label="禁用" disabled></el-checkbox>
-                <el-checkbox label="选中且禁用" disabled></el-checkbox>
-              </el-checkbox-group>
-            </el-form-item>
-            <el-form-item label="服务项目:" prop="room_name" style="width: 100%">
-              <el-checkbox-group v-model="checkList">
-                <el-checkbox label="复选框 A"></el-checkbox>
-                <el-checkbox label="复选框 B"></el-checkbox>
-                <el-checkbox label="复选框 C"></el-checkbox>
-                <el-checkbox label="禁用" disabled></el-checkbox>
-                <el-checkbox label="选中且禁用" disabled></el-checkbox>
-              </el-checkbox-group>
-            </el-form-item>
-            <el-form-item label="餐厅设施:" prop="room_name" style="width: 100%">
-              <el-checkbox-group v-model="checkList">
-                <el-checkbox label="复选框 A"></el-checkbox>
-                <el-checkbox label="复选框 B"></el-checkbox>
-                <el-checkbox label="复选框 C"></el-checkbox>
-                <el-checkbox label="禁用" disabled></el-checkbox>
-                <el-checkbox label="选中且禁用" disabled></el-checkbox>
-              </el-checkbox-group>
-            </el-form-item>
-            <el-form-item label="活动设施:" prop="room_name" style="width: 100%">
-              <el-checkbox-group v-model="checkList">
-                <el-checkbox label="复选框 A"></el-checkbox>
-                <el-checkbox label="复选框 B"></el-checkbox>
-                <el-checkbox label="复选框 C"></el-checkbox>
-                <el-checkbox label="禁用" disabled></el-checkbox>
-                <el-checkbox label="选中且禁用" disabled></el-checkbox>
-              </el-checkbox-group>
-            </el-form-item>
-            <el-form-item label="通用设施:" prop="room_name" style="width: 100%">
-              <el-checkbox-group v-model="checkList">
-                <el-checkbox label="复选框 A"></el-checkbox>
-                <el-checkbox label="复选框 B"></el-checkbox>
-                <el-checkbox label="复选框 C"></el-checkbox>
-                <el-checkbox label="禁用" disabled></el-checkbox>
-                <el-checkbox label="选中且禁用" disabled></el-checkbox>
-              </el-checkbox-group>
-            </el-form-item>
-            <el-form-item label="商务服务:" prop="room_name" style="width: 100%">
-              <el-checkbox-group v-model="checkList">
-                <el-checkbox label="复选框 A"></el-checkbox>
-                <el-checkbox label="复选框 B"></el-checkbox>
-                <el-checkbox label="复选框 C"></el-checkbox>
-                <el-checkbox label="禁用" disabled></el-checkbox>
-                <el-checkbox label="选中且禁用" disabled></el-checkbox>
-              </el-checkbox-group>
-            </el-form-item>
-            <el-form-item label="儿童设施:" prop="room_name" style="width: 100%">
+            <el-form-item label="房间设施:" prop="room_facilities" style="width: 100%" v-for="(index, item) in roomInfo.all_label" :key="item.index">
               <el-checkbox-group v-model="checkList">
                 <el-checkbox label="复选框 A"></el-checkbox>
                 <el-checkbox label="复选框 B"></el-checkbox>
@@ -176,9 +122,9 @@ export default {
       roomId: this.$route.query.roomId, // 房间id
       from: this.$route.query.from, // 从哪个按钮进来的标识     add   edit
       roomInfo: {
-        room_label:[]
+        room_label: [],
       }, // 根据酒店id查询到的房间信息
-      thumbnail:"", // 缩略图
+      thumbnail: '', // 缩略图
       activeIndex: 0,
       activeTabIndex: '0',
       cancelOptions: [
@@ -230,7 +176,7 @@ export default {
       if (this.activeIndex === 0 && this.activeTabIndex === '0') {
         this.activeIndex++
         this.activeTabIndex = '1'
-        console.log(this.roomInfo);
+        console.log(this.roomInfo)
       }
     },
     tabClicked() {},
@@ -257,13 +203,13 @@ export default {
       this.roomInfo.room_pictures.push(picInfo)
     },
     handleRemove(file) {
-        //  1.获取要删除的图片的临时路径
-        const fileKey = file.key
-        //  2.从pics数组中，找到这个图片对应的索引
-        const i = this.roomInfo.room_pictures.findIndex((x) => x.key === fileKey)
-        this.roomInfo.del_picture.push(this.roomInfo.room_pictures[i].key)
-        // 3.调用数组的splice 方法，把图片信息对象从pics中删除掉
-        this.roomInfo.room_pictures.splice(i, 1)
+      //  1.获取要删除的图片的临时路径
+      const fileKey = file.key
+      //  2.从pics数组中，找到这个图片对应的索引
+      const i = this.roomInfo.room_pictures.findIndex((x) => x.key === fileKey)
+      this.roomInfo.del_picture.push(this.roomInfo.room_pictures[i].key)
+      // 3.调用数组的splice 方法，把图片信息对象从pics中删除掉
+      this.roomInfo.room_pictures.splice(i, 1)
     },
   },
 }

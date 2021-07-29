@@ -67,7 +67,7 @@
           <el-table-column prop="room_label" label="营销标签">
             <!-- eslint-disable-next-line -->
             <template slot-scope="scope">
-              <el-tag v-for="item in scope.row.room_label" :key="item.index" style="margin: 0 5px">{{ item }}</el-tag>
+              <el-tag v-for="item in scope.row.room_label" :key="item.index" style="margin: 0 5px">{{ item.label_name }}</el-tag>
             </template>
           </el-table-column>
           <el-table-column prop="address" label="操作">
@@ -107,7 +107,7 @@
         </div>
         <el-calendar v-model="adjustmentTime">
           <!-- 这里使用的是 2.5 slot 语法，对于新项目请使用 2.6 slot 语法-->
-          <template slot="dateCell" slot-scope="{ date, data }">
+          <template slot="dateCell" slot-scope="{ data }">
             <p :class="data.isSelected ? 'is-selected' : ''">{{ data.day.split('-').slice(1).join('-') }} {{ data.isSelected ? '✔️' : '' }}</p>
           </template>
         </el-calendar>
