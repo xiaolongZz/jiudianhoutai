@@ -41,7 +41,7 @@
             </div>
             <el-form-item label="客房类型">
               <el-select v-model="roomInfo.classify_id" placeholder="请选择">
-                <el-option v-for="item in nameOptions" :key="item.id" :label="item.name" :value="item.value"> </el-option>
+                <el-option v-for="item in nameOptions" :key="item.id" :label="item.name" :value="item.id"> </el-option>
               </el-select>
             </el-form-item>
             <el-form-item label="价格:" prop="price" style="width: 100%"><el-input v-model="roomInfo.price" style="width: 15%"></el-input></el-form-item>
@@ -77,7 +77,7 @@
             </el-form-item>
             <el-form-item label="标签选择:" prop="all_label" style="width: 100%">
               <el-checkbox-group v-model="roomInfo.room_label">
-                <el-checkbox v-for="item in roomInfo.all_label" :key="item.id" :label="item.id">{{ item.label_name }}</el-checkbox>
+                <el-checkbox v-for="item in roomInfo.all_label" :key="item.id" :label="item.type_id">{{ item.name }}</el-checkbox>
               </el-checkbox-group>
             </el-form-item>
             <el-form-item label="上下架:" prop="status" style="width: 100%">
@@ -88,13 +88,9 @@
             </el-form-item>
           </el-tab-pane>
           <el-tab-pane label="房间信息" name="1">
-            <el-form-item label="房间设施:" prop="room_facilities" style="width: 100%" v-for="(index, item) in roomInfo.all_label" :key="item.index">
-              <el-checkbox-group v-model="checkList">
-                <el-checkbox label="复选框 A"></el-checkbox>
-                <el-checkbox label="复选框 B"></el-checkbox>
-                <el-checkbox label="复选框 C"></el-checkbox>
-                <el-checkbox label="禁用" disabled></el-checkbox>
-                <el-checkbox label="选中且禁用" disabled></el-checkbox>
+            <el-form-item prop="room_facilities" style="width: 100%" v-for="(index, item) in roomInfo.all_label" :key="item.index" label="item.name">
+              <el-checkbox-group v-model="roomInfo.room_facilities">
+                <el-checkbox label="复选框 A">{{item.name}}</el-checkbox>
               </el-checkbox-group>
             </el-form-item>
           </el-tab-pane>
@@ -160,8 +156,6 @@ export default {
     async getclassifySelect() {
       await classifySelect({ hotel_id: this.hotel_id }).then((res) => {
         res.data.forEach((ele) => {
-          ele.value = ele.id
-          ele.label = ele.name
           this.nameOptions.push(ele)
         })
       })

@@ -105,13 +105,16 @@
           <el-input style="width: 250px" placeholder="请输入房间名查询" v-model="adjustmentRoomName"></el-input>
           <el-button type="primary" icon="el-icon-search">搜索</el-button>
         </div>
-        <el-calendar v-model="adjustmentTime">
+        <el-calendar v-model="chooseDtata1">
           <!-- 这里使用的是 2.5 slot 语法，对于新项目请使用 2.6 slot 语法-->
-          <template slot="dateCell" slot-scope="{ data }">
-            <p :class="data.isSelected ? 'is-selected' : ''">{{ data.day.split('-').slice(1).join('-') }} {{ data.isSelected ? '✔️' : '' }}</p>
+          <template slot="dateCell" slot-scope="{  data }">
+            <div @click="chooseDay(data)">
+              <p :class="data.isSelected ? 'is-selected' : ''">{{ data.day.split('-').slice(1).join('-') }} {{ data.isSelected ? '✔️' : '' }}</p>
+              <span>涨幅{{ Increase }}%</span>
+            </div>
           </template>
         </el-calendar>
-        <el-date-picker type="dates" v-model="adjustmentRoomName" placeholder="选择一个或多个日期"> </el-date-picker>
+        <el-date-picker type="dates" v-model="chooseDtata" placeholder="选择一个或多个日期"> </el-date-picker>
       </div>
     </el-card>
   </div>
@@ -181,8 +184,12 @@ export default {
       // 批量上下架数组
       batchArr: [],
       adjustmentTime: '',
+      calendarValue: '',
       Increase: 0,
       adjustmentRoomName: '',
+      potDate: [],
+      chooseDtata: [],
+      chooseDtata1: '',
     }
   },
   created() {
@@ -190,6 +197,10 @@ export default {
     this.RoomList()
   },
   methods: {
+    chooseDay(data ) {
+      data .isSelected = true
+      console.log(data.day)
+    },
     tabChange(tab) {
       this.nowtab = tab
     },
