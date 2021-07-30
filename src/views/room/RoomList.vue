@@ -107,10 +107,18 @@
         </div>
         <el-calendar v-model="chooseDtata1">
           <!-- 这里使用的是 2.5 slot 语法，对于新项目请使用 2.6 slot 语法-->
-          <template slot="dateCell" slot-scope="{  data }">
+          <template slot="dateCell" slot-scope="{ data }">
             <div @click="chooseDay(data)">
-              <p :class="data.isSelected ? 'is-selected' : ''">{{ data.day.split('-').slice(1).join('-') }} {{ data.isSelected ? '✔️' : '' }}</p>
-              <span>涨幅{{ Increase }}%</span>
+              <div v-for="(item, index) in calendarData" :key="index">
+                <div v-if="item.months.indexOf(data.day.split('-').slice(1)[0]) != -1">
+                  <div v-if="item.days.indexOf(data.day.split('-').slice(2).join('-')) != -1">
+                    <span class="is-selected">{{ item.sign }}</span>
+                  </div>
+                </div>
+              </div>
+              <p :class="data.isSelected ? 'is-selected' : ''">
+                {{ data.day.split('-').slice(1).join('-') }} <span>涨幅{{ Increase }}%</span>
+              </p>
             </div>
           </template>
         </el-calendar>
@@ -190,6 +198,7 @@ export default {
       potDate: [],
       chooseDtata: [],
       chooseDtata1: '',
+      calendarData: [{ months: [], days: [], sign: '✔️' }],
     }
   },
   created() {
@@ -197,9 +206,15 @@ export default {
     this.RoomList()
   },
   methods: {
-    chooseDay(data ) {
-      data .isSelected = true
-      console.log(data.day)
+    chooseDay(data) {
+      if (this.calendarData[0].days.includes(data.day.split('-')[2])) {
+        let index = this.calendarData[0].days.indexOf(data.day.split('-')[2])
+        this.calendarData[0].days.splice(index, 1)
+        return
+      } else {
+        this.calendarData[0].months.push(data.day.split('-')[1])
+        this.calendarData[0].days.push(data.day.split('-')[2])
+      }
     },
     tabChange(tab) {
       this.nowtab = tab
