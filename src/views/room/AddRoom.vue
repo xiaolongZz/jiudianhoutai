@@ -77,7 +77,7 @@
             </el-form-item>
             <el-form-item label="标签选择:" prop="all_label" style="width: 100%">
               <el-checkbox-group v-model="roomInfo.room_label">
-                <el-checkbox v-for="item in roomInfo.all_label" :key="item.id" :label="item.type_id">{{ item.name }}</el-checkbox>
+                <el-checkbox v-for="item in roomInfo.all_label.room_label" :key="item.id" :label="item.id">{{ item.label_name }}</el-checkbox>
               </el-checkbox-group>
             </el-form-item>
             <el-form-item label="上下架:" prop="status" style="width: 100%">
@@ -88,10 +88,9 @@
             </el-form-item>
           </el-tab-pane>
           <el-tab-pane label="房间信息" name="1">
-            <el-form-item prop="room_facilities" style="width: 100%" v-for="(index, item) in roomInfo.all_label" :key="item.index" label="item.name">
-              <el-checkbox-group v-model="roomInfo.room_facilities">
-                <el-checkbox label="复选框 A">{{item.name}}</el-checkbox>
-              </el-checkbox-group>
+            <el-form-item prop="room_facilities" style="width: 100%" v-for=" item in roomInfo.all_label.room_facilities" :key="item.type_id" label="房间信息">
+              <label slot="label">{{item.name}}</label>
+                <el-checkbox v-for="ele in item.label" :key="ele.id" :label="ele.id">{{ele.label_name}}</el-checkbox>
             </el-form-item>
           </el-tab-pane>
         </el-tabs>
@@ -118,7 +117,10 @@ export default {
       roomId: this.$route.query.roomId, // 房间id
       from: this.$route.query.from, // 从哪个按钮进来的标识     add   edit
       roomInfo: {
-        room_label: [],
+        all_label: {
+          room_facilities: [],
+          room_label: [],
+        },
       }, // 根据酒店id查询到的房间信息
       thumbnail: '', // 缩略图
       activeIndex: 0,
@@ -146,11 +148,12 @@ export default {
   methods: {
     async getRoomInfo() {
       if (!this.roomId) {
-        return
+       await getRoomInfo({ id: '' }).then((res) => {
+        this.roomInfo = res.data
+      })
       }
       await getRoomInfo({ id: this.roomId }).then((res) => {
         this.roomInfo = res.data
-        this.roomInfo.room_label = res.data.room_label
       })
     },
     async getclassifySelect() {

@@ -50,8 +50,14 @@ let exportRoom = (obj) => {
 let uploadToken = (obj) => {
     return axios.get('hotelv2/index/qiniu/uploadToken', obj)
 }
-let deleteFile = (obj) => {
-    return axios.get('hotelv2/index/qiniu/deleteFile', obj)
+
+// 获取价格调整日历
+let getPriceCalendar = (obj) =>{
+    return axios.post('/hotelv2/index/merchant/price/getPriceCalendar', obj)
+}
+// 调整房间价格
+let updatePrice = (obj) =>{
+    return axios.post('/hotelv2/index/merchant/price/updatePrice', obj)
 }
 
 export {
@@ -68,5 +74,6 @@ export {
     getRoomInfo,
     exportRoom,
     uploadToken, 
-    deleteFile
+    updatePrice,
+    getPriceCalendar
 }
