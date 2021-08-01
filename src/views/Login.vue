@@ -165,15 +165,15 @@ export default {
         }
       })
     },
-    lookingpsw(){
-      if(this.passwordType == 'password'){
-        console.log(111);
+    lookingpsw() {
+      if (this.passwordType == 'password') {
+        console.log(111)
         this.passwordType = 'text'
       }
-       if(this.passwordType == 'text'){
+      if (this.passwordType == 'text') {
         this.passwordType = 'password'
       }
-    }
+    },
   },
 }
 </script>
@@ -252,8 +252,8 @@ export default {
         background-color: #2d3a4b;
         color: #fff;
       }
-      .iconfont{
-        position:absolute;
+      .iconfont {
+        position: absolute;
         right: 25px;
         cursor: pointer;
       }

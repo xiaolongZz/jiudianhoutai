@@ -52,11 +52,11 @@ let uploadToken = (obj) => {
 }
 
 // 获取价格调整日历
-let getPriceCalendar = (obj) =>{
+let getPriceCalendar = (obj) => {
     return axios.post('/hotelv2/index/merchant/price/getPriceCalendar', obj)
 }
 // 调整房间价格
-let updatePrice = (obj) =>{
+let updatePrice = (obj) => {
     return axios.post('/hotelv2/index/merchant/price/updatePrice', obj)
 }
 
@@ -73,7 +73,7 @@ export {
     getSelectOption,
     getRoomInfo,
     exportRoom,
-    uploadToken, 
+    uploadToken,
     updatePrice,
     getPriceCalendar
 }
