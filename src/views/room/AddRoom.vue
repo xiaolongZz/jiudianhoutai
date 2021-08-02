@@ -41,11 +41,11 @@
             </div>
             <el-form-item label="客房类型">
               <el-select v-model="roomInfo.classify_id" placeholder="请选择">
-                <el-option v-for="item in nameOptions" :key="item.id" :label="item.name" :value="item.id"> </el-option>
+                <el-option v-for="item in nameOptions" :key="item.id" :label="item.label_name" :value="item.id"> </el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="价格:" prop="price" style="width: 100%"><el-input v-model="roomInfo.price" style="width: 15%"></el-input></el-form-item>
-            <el-form-item label="库存:" prop="inventory" style="width: 100%"> <el-input v-model="roomInfo.inventory" style="width: 15%"></el-input> </el-form-item>
+            <el-form-item label="价格:" prop="price" style="width: 100%"><el-input v-model="roomInfo.price" style="width: 15%"></el-input> 元</el-form-item>
+            <el-form-item label="库存:" prop="inventory" style="width: 100%"> <el-input v-model="roomInfo.inventory" style="width: 15%"></el-input> 间</el-form-item>
             <el-form-item label="入住人数:" prop="max_people" style="width: 100%"><el-input v-model="roomInfo.max_people" style="width: 15%"></el-input> 人</el-form-item>
             <el-form-item label="房间面积:" prop="area" style="width: 100%"><el-input v-model="roomInfo.area" style="width: 15%"></el-input> m²</el-form-item>
             <el-form-item label="房间缩略图:" style="width: 100%">
@@ -90,7 +90,9 @@
           <el-tab-pane label="房间信息" name="1">
             <el-form-item prop="room_facilities" style="width: 100%" v-for=" item in roomInfo.all_label.room_facilities" :key="item.type_id" label="房间信息">
               <label slot="label">{{item.name}}</label>
+              <el-checkbox-group v-model="roomInfo.room_facilities">
                 <el-checkbox v-for="ele in item.label" :key="ele.id" :label="ele.id">{{ele.label_name}}</el-checkbox>
+              </el-checkbox-group>
             </el-form-item>
           </el-tab-pane>
         </el-tabs>
@@ -103,13 +105,13 @@
         </el-button-group>
       </div>
       <div class="buttongroup" v-show="activeIndex">
-        <el-button type="primary" style="width: 100px">提交</el-button>
+        <el-button type="primary" style="width: 100px" @click="submit">提交</el-button>
       </div>
     </el-card>
   </div>
 </template>
 <script>
-import { classifySelect, getRoomInfo, uploadToken } from '../../assets/api/index.js'
+import { classifySelect, getRoomInfo, uploadToken,createRoom,editRoom } from '../../assets/api/index.js'
 export default {
   data() {
     return {
@@ -122,6 +124,19 @@ export default {
           room_label: [],
         },
       }, // 根据酒店id查询到的房间信息
+      editRoomInfo:{
+        hotel_id:'',
+        room_name:'',
+        price:'',
+        classify_id:'',
+        inventory:'',
+        thumbnail:'',
+        room_pictures:[],
+        room_label:[],
+        room_facilities:[],
+        area:'',
+        max_people:''
+      },
       thumbnail: '', // 缩略图
       activeIndex: 0,
       activeTabIndex: '0',
@@ -142,8 +157,8 @@ export default {
     }
   },
   created() {
-    this.getclassifySelect()
     this.getRoomInfo()
+    this.getclassifySelect()
   },
   methods: {
     async getRoomInfo() {
@@ -158,7 +173,8 @@ export default {
     },
     async getclassifySelect() {
       await classifySelect({ hotel_id: this.hotel_id }).then((res) => {
-        res.data.forEach((ele) => {
+        res.data.room_classify.forEach((ele) => {
+          console.log(ele);
           this.nameOptions.push(ele)
         })
       })
@@ -173,7 +189,6 @@ export default {
       if (this.activeIndex === 0 && this.activeTabIndex === '0') {
         this.activeIndex++
         this.activeTabIndex = '1'
-        console.log(this.roomInfo)
       }
     },
     tabClicked() {},
@@ -198,16 +213,34 @@ export default {
       }
       // 2. 将图片信息对象，push到pics数组中
       this.roomInfo.room_pictures.push(picInfo)
+      this.editRoomInfo.room_pictures.push(picInfo)
     },
     handleRemove(file) {
       //  1.获取要删除的图片的临时路径
       const fileKey = file.key
       //  2.从pics数组中，找到这个图片对应的索引
       const i = this.roomInfo.room_pictures.findIndex((x) => x.key === fileKey)
+      const k = this.editRoomInfo.room_pictures.findIndex((x) => x.key === fileKey)
       this.roomInfo.del_picture.push(this.roomInfo.room_pictures[i].key)
+      this.editRoomInfo.del_picture.push(this.editRoomInfo.room_pictures[k].key)
       // 3.调用数组的splice 方法，把图片信息对象从pics中删除掉
       this.roomInfo.room_pictures.splice(i, 1)
+      this.editRoomInfo.room_pictures.splice(i, 1)
     },
+  async submit(){
+    this.editRoomInfo.hotel_id = this.$route.query.hotel_id,
+    this.editRoomInfo.thumbnail = this.editRoomInfo.room_pictures[0]
+      console.log(this.editRoomInfo);
+      if(this.from == 'add'){
+        // 添加客房
+  await createRoom(this.editRoomInfo).then((res)=>{
+    console.log(res);
+  })
+      }
+      if(this.from == 'edit'){
+        // 编辑客房
+      }
+    }
   },
 }
 </script>

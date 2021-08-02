@@ -70,9 +70,9 @@ export default {
     return {
       // 登录表单数据
       loginForm: {
-        account: '13142224222', // 13122222222     //13353221241
-        password: '123456',
-        verifyCode: '00000',
+        account: '18522223333', // 13122222222     //13353221241   //15566668888  //18522223333 
+        password: '123456', 
+        verifyCode: '000000',
       },
       // 登录验证规则
       loginRules: {

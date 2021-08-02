@@ -33,12 +33,12 @@
             </el-form-item>
             <el-form-item label="客房分类">
               <el-select v-model="searchForm.classify_id" placeholder="无" style="width: 280px">
-                <el-option v-for="item in roomOptions" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                <el-option v-for="item in roomOptions" :key="item.id" :label="item.label_name" :value="item.id"> </el-option>
               </el-select>
             </el-form-item>
             <el-form-item label="营销标签">
               <el-select v-model="searchForm.room_label" placeholder="无" style="width: 280px">
-                <el-option v-for="item in tagOptions" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                <el-option v-for="item in tagOptions" :key="item.id" :label="item.label_name" :value="item.id"> </el-option>
               </el-select>
             </el-form-item>
           </el-form>
@@ -253,7 +253,6 @@ export default {
    async adjustmentTime(newVal) {
       let newData = newVal + ' '
       newData = newData.split(' ')
-      console.log(newData)
       let obj = {}
       obj.year = newData[3]
       obj.month = this.lists.filter((item) => item.key == newData[1])[0].value
@@ -297,7 +296,7 @@ export default {
         this.roomListData = res.data.list
       })
       await getSelectOption({ hotel_id: this.userInfo.hotel_id }).then((res) => {
-        res.data.classify.forEach((item) => {
+        res.data.classify.room_classify.forEach((item) => {
           item.value = item.name
           item.label = item.name
           this.roomOptions.push(item)
