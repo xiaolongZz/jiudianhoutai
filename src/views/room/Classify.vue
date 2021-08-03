@@ -111,8 +111,6 @@ export default {
         this.dialogVisible = false
         this.GetClassifyList()
         this.$message.success('删除分类成功!')
-
-        console.log(res)
       })
     },
     async deleteClassify(id) {

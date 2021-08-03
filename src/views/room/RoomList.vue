@@ -15,11 +15,11 @@
         <div class="search">
           <el-form ref="form" :model="searchForm" label-width="80px" class="searchForm">
             <el-form-item label="客房名称" style="width: 20%">
-              <el-input v-model="searchForm.roomName"></el-input>
+              <el-input v-model="searchForm.room_name"></el-input>
             </el-form-item>
             <el-form-item label="添加时间">
               <el-date-picker
-                v-model="searchForm.addData"
+                v-model="addData"
                 type="daterange"
                 value-format="yyyy-MM-dd"
                 align="right"
@@ -32,13 +32,13 @@
               </el-date-picker>
             </el-form-item>
             <el-form-item label="客房分类">
-              <el-select v-model="searchForm.classify_id" placeholder="无" style="width: 280px">
-                <el-option v-for="item in roomOptions" :key="item.id" :label="item.label_name" :value="item.id"> </el-option>
+              <el-select v-model="searchForm.classify_id" placeholder="无" style="width: 280px" clearable>
+                <el-option v-for="(item, index) in roomOptions" :key="index" :label="item.name" :value="item.id"> </el-option>
               </el-select>
             </el-form-item>
             <el-form-item label="营销标签">
-              <el-select v-model="searchForm.room_label" placeholder="无" style="width: 280px">
-                <el-option v-for="item in tagOptions" :key="item.id" :label="item.label_name" :value="item.id"> </el-option>
+              <el-select v-model="searchForm.room_label" placeholder="无" style="width: 280px" clearable>
+                <el-option v-for="(item, index) in tagOptions" :key="index" :label="item.label_name" :value="item.id"> </el-option>
               </el-select>
             </el-form-item>
           </el-form>
@@ -98,7 +98,7 @@
       <div v-if="nowtab == '价格调整'" class="adjustmentPrice">
         <div class="top">
           <span>跳转时间：</span>
-          <el-date-picker v-model="adjustmentTime" type="month" placeholder="请选择年月" @change="changeData" value-format="yyyy-MM"> </el-date-picker>
+          <el-date-picker v-model="adjustmentTime" type="month" placeholder="请选择年月" @change="changeData" :clearable="false"> </el-date-picker>
           <span>包含房间：</span>
           <el-input style="width: 250px" placeholder="请输入房间名查询" v-model="adjustmentRoomName"></el-input>
           <el-button type="primary" icon="el-icon-search" @click="searRoomPrice">搜索</el-button>
@@ -114,7 +114,6 @@
                 <span v-for="item in priceList" :key="item.id">
                   <span v-if="item.date == data.day">{{ '涨幅  ' + item.price.revise_range }}</span>
                 </span>
-
                 <span class="is-selected" v-if="calendarData.days.indexOf(data.day) != -1">{{ calendarData.sign }}</span>
               </div>
             </template>
@@ -165,14 +164,17 @@ export default {
       userInfo: {},
       tabPosition: '客房列表',
       nowtab: '客房列表',
+      addData: '',
       searchForm: {
-        addData: '',
+        hotel_id: '',
         room_name: '',
         start_date: '',
         finish_date: '',
         room_label: '',
         classify_id: '',
-        pageSize: this.pageSize,
+        pageSize: '',
+        status: '',
+        page: '',
       },
       pickerOptions: {
         shortcuts: [
@@ -239,28 +241,46 @@ export default {
       ],
       revise_range: '',
       priceList: [],
-      lists:[{key: 'Jan',value: "01"},{key: "Feb",value: "02"},{key: "Mar",value: "03"},{key: "Apr",value: "04"},{key: "May",value: "05"},{key: "Jun",value: "06"},{key: "Jul",value: "07"},{key: 'Aug',value: "08"},{key: "Sep",value: "09"},{key: "Oct",value: 10},{key: "Nov",value: 11},{key: "Nov",value: 12}]
-
+      getPriceForm: {
+        year: '',
+        month: '',
+        hotel_id: '',
+        room_name: '',
+      },
+      nowData: new Date(),
+      lists: [
+        { key: 'Jan', value: '01' },
+        { key: 'Feb', value: '02' },
+        { key: 'Mar', value: '03' },
+        { key: 'Apr', value: '04' },
+        { key: 'May', value: '05' },
+        { key: 'Jun', value: '06' },
+        { key: 'Jul', value: '07' },
+        { key: 'Aug', value: '08' },
+        { key: 'Sep', value: '09' },
+        { key: 'Oct', value: 10 },
+        { key: 'Nov', value: 11 },
+        { key: 'Dec', value: 12 },
+      ],
     }
   },
   created() {
     this.userInfo = JSON.parse(window.sessionStorage.getItem('userInfo'))
     this.RoomList()
-    this.getPrice()
+    this.getPrice(this.nowData)
   },
   mounted() {},
   watch: {
-   async adjustmentTime(newVal) {
+    adjustmentTime(newVal, oldVal) {
       let newData = newVal + ' '
+      let oldtime = oldVal + ' '
       newData = newData.split(' ')
-      let obj = {}
-      obj.year = newData[3]
-      obj.month = this.lists.filter((item) => item.key == newData[1])[0].value
-      obj.hotel_id = this.userInfo.hotel_id
-      obj.room_name = this.adjustmentRoomName
-      await getPriceCalendar(obj).then((res) => {
-        this.priceList = res.data
-      })
+      oldVal = oldtime.split(' ')
+      if (newData[3] == oldVal[3] && newData[1] == oldVal[1]) {
+        return
+      } else {
+        this.getPrice(newVal)
+      }
     },
   },
   methods: {
@@ -285,18 +305,22 @@ export default {
       this.RoomList()
     },
     async RoomList() {
-      let obj = {}
-      obj.hotel_id = this.userInfo.hotel_id
-      obj.status = this.status
-      obj.page = this.currentPage
-      obj.pageSize = this.pageSize
-      this.queryInfo = obj
-      await getRoomList(this.queryInfo).then((res) => {
+      this.searchForm.pageSize = this.pageSize
+      this.searchForm.page = this.currentPage
+      this.searchForm.hotel_id = this.userInfo.hotel_id
+      if (this.addData) {
+        this.searchForm.start_date = this.addData[0]
+        this.searchForm.finish_date = this.addData[1]
+      } else {
+        this.searchForm.start_date = ''
+        this.searchForm.finish_date = ''
+      }
+      await getRoomList(this.searchForm).then((res) => {
         this.total = res.data.total
         this.roomListData = res.data.list
       })
       await getSelectOption({ hotel_id: this.userInfo.hotel_id }).then((res) => {
-        res.data.classify.room_classify.forEach((item) => {
+        res.data.classify.forEach((item) => {
           item.value = item.name
           item.label = item.name
           this.roomOptions.push(item)
@@ -308,14 +332,14 @@ export default {
         })
       })
     },
-    async getPrice() {
-      let date = new Date()
-      let obj = {}
-      obj.year = date.getFullYear()
-      obj.month = date.getMonth() + 1
-      obj.hotel_id = this.userInfo.hotel_id
-      obj.room_name = this.adjustmentRoomName
-      await getPriceCalendar(obj).then((res) => {
+    async getPrice(newVal) {
+      let newData = newVal + ' '
+      newData = newData.split(' ')
+      this.getPriceForm.year = newData[3]
+      this.getPriceForm.month = this.lists.filter((item) => item.key == newData[1])[0].value
+      this.getPriceForm.hotel_id = this.userInfo.hotel_id
+      this.getPriceForm.room_name = this.adjustmentRoomName
+      await getPriceCalendar(this.getPriceForm).then((res) => {
         this.priceList = res.data
       })
     },
@@ -414,22 +438,17 @@ export default {
       })
     },
     searRoomPrice() {
-      console.log(this.adjustmentTime)
-      // this.changeData()
+      if (!this.adjustmentTime) {
+        this.adjustmentTime = this.nowData
+      }
+      this.getPrice(this.adjustmentTime)
     },
 
-    async changeData(data) {
-      let obj = {}
-      obj.year = data.split('-')[0]
-      obj.month = data.split('-')[1]
-      obj.hotel_id = this.userInfo.hotel_id
-      obj.room_name = this.adjustmentRoomName
-      await getPriceCalendar(obj).then((res) => {
-        this.priceList = res.data
-      })
+    changeData(data) {
+      this.getPrice(data)
     },
     searchRoom() {
-      console.log(this.searchForm)
+      this.RoomList()
     },
     showEideDialogVisible() {
       this.eideDialogVisible = true
@@ -446,17 +465,23 @@ export default {
     clearSelect() {
       this.checkedCities = []
     },
-    updateRoomPrice() {
-      let obj = {}
-      obj.room_id = this.checkedCities
-      obj.calendar_id = this.calendarData.days
-      obj.revise_type = this.revise_type
-      obj.revise_range = this.revise_range
-      updatePrice(obj).then((res) => {})
+    async updateRoomPrice() {
       // room_id:              //类型：Array  必有字段  备注：房间id
       // calendar_id:          //类型：Array  必有字段  备注：日期id
       // revise_type:          //类型：String  必有字段  备注：0=下调，1=上调
       // revise_range:         //类型：String  必有字段  备注：价格调整幅度
+      let obj = {}
+      obj.room_id = this.checkedCities
+      obj.date = this.calendarData.days
+      obj.revise_type = this.revise_type
+      obj.revise_range = this.revise_range
+      await updatePrice(obj).then((res) => {
+        this.eideDialogVisible = false
+        this.calendarData.days = []
+        this.checkedCities = []
+        this.revise_type = ''
+        this.revise_range = ''
+      })
     },
   },
 }
