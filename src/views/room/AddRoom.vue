@@ -157,7 +157,7 @@ export default {
       },
       uploadPicnum: 0, // 上传成功的图片数量
       existingPicNum: 0, // 编辑客房时返回的图片数量
-      num:0
+      num: 0,
     }
   },
   created() {
@@ -250,19 +250,17 @@ export default {
         }
       }
       if (this.from == 'edit') {
-      this.uploadPicnum-- // 已上传成功的图片数量
-        if(this.uploadPicnum == 0){
-              await editRoom(this.roomInfo).then((res) => {
-              this.uploadPicnum = 0
-              this.$message.success('编辑房间成功！')
-              this.$router.push({ path: '/roomList' })
-            })
-      }
-       
+        this.uploadPicnum-- // 已上传成功的图片数量
+        if (this.uploadPicnum == 0) {
+          await editRoom(this.roomInfo).then((res) => {
+            this.uploadPicnum = 0
+            this.$message.success('编辑房间成功！')
+            this.$router.push({ path: '/roomList' })
+          })
+        }
       }
     },
     submit() {
-      console.log(this.existingPicNum, this.uploadPicnum, this.roomInfo.room_pictures)
       this.$refs.roomInfoForm.validate(async (valid) => {
         this.roomInfo.hotel_id = this.$route.query.hotel_id
         if (!valid) {

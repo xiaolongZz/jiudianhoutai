@@ -59,7 +59,7 @@
         <el-table class="roomListTable" :data="roomListData" style="width: 100%" border @select="selectRow" @select-all="selectAllRow">
           <el-table-column type="selection" width="55"> </el-table-column>
           <el-table-column type="index" width="55"> </el-table-column>
-          <el-table-column prop="room_name" label="房名" >
+          <el-table-column prop="room_name" label="房名">
             <template slot-scope="scope">
               <div class="roomName">
                 <el-image style="width: 100px; height: 100px" :src="scope.row.thumbnail"> </el-image>
@@ -84,14 +84,14 @@
               <el-button type="text" size="small" v-if="scope.row.status == 1" @click="offShelfRoom(scope.row.id)">下架</el-button>
               <el-button type="text" size="small" v-if="scope.row.status == 0" @click="onShelfRoom(scope.row.id)">上架</el-button>
               <el-button type="text" size="small" @click="editRoom(scope.row)">编辑</el-button>
-              <el-button type="text" size="small">删除</el-button>
+              <el-button type="text" size="small" @click="deleRoom(scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
         <div class="OffTheShelf">
           <el-button @click="batchShelves">批量上架</el-button>
           <el-button @click="batchOffShelf">批量下架</el-button>
-          <el-button icon="el-icon-delete">删除</el-button>
+          <el-button icon="el-icon-delete" @click="batchDele">批量删除</el-button>
         </div>
         <el-pagination
           @size-change="handleSizeChange"
@@ -165,7 +165,7 @@
 </template>
 
 <script>
-import { getRoomList, onShelf, offShelf, getSelectOption, exportRoom, updatePrice, getPriceCalendar } from '../../assets/api/index.js'
+import { getRoomList, onShelf, offShelf, getSelectOption, exportRoom, updatePrice, getPriceCalendar, deleteRoom } from '../../assets/api/index.js'
 export default {
   data() {
     return {
@@ -404,6 +404,9 @@ export default {
         })
       }
     },
+    batchDele() {
+      this.deleRoom(this.batchArr)
+    },
     allRoom() {
       this.status = ''
       this.RoomList()
@@ -432,6 +435,27 @@ export default {
     },
     editRoom(itm) {
       this.$router.push({ path: '/roomList/addRoom', query: { hotel_id: itm.hotel_id, roomId: itm.id, from: 'edit' } })
+    },
+    async deleRoom(itm) {
+      console.log(itm instanceof Array)
+      let idArray = []
+      if (itm instanceof Array) {
+        idArray = itm
+      } else {
+        idArray.push(itm.id)
+      }
+      const confiemResult = await this.$confirm('此操作将永久删除房间, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).catch((err) => err)
+      if (confiemResult !== 'confirm') {
+        return this.$message.info('已取消删除！')
+      }
+      await deleteRoom({ idArray: idArray }).then(() => {
+        this.$message.success('删除成功~')
+        this.RoomList()
+      })
     },
     async exportroom() {
       await exportRoom({ hotel_id: this.userInfo.hotel_id }).then((res) => {
@@ -606,7 +630,7 @@ export default {
       margin-right: 50px;
     }
   }
-  .roomName{
+  .roomName {
     display: flex;
     justify-content: space-between;
   }
