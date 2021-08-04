@@ -33,23 +33,20 @@
       <el-dialog title="添加分类" :visible.sync="dialogVisible" width="38%" :before-close="handleClose">
         <el-form :model="addClassificationForm" ref="addClassificationFormRef" label-width="100px">
           <el-form-item :label="'分类名称'">
-            <el-select v-model="addClassificationForm.name" placeholder="请选择">
-              <el-option v-for="item in room_classify" :key="item.id" :label="item.label_name" :value="item.label_name"> </el-option>
-            </el-select>
+            <el-input v-model="addClassificationForm.name" placeholder="请输入要添加的分类名称" style="width:200px"> </el-input>
           </el-form-item>
-
           <el-form-item v-for="(bed_type, index) in addClassificationForm.bed_type" :label="'床型'" :key="bed_type.index" :prop="'bed_type' + index">
             <el-select v-model="addClassificationForm.bed_type[index].bed_label" placeholder="请选择" style="width: 120px">
               <el-option v-for="item in bed_label" :key="item.id" :label="item.bed_label" :value="item.bed_label"> </el-option>
             </el-select>
-            <el-input style="width: 60px" v-model="addClassificationForm.bed_type[index].long" type="number" placeholder="长" :min="0"></el-input>
+            <el-input style="width: 80px" v-model="addClassificationForm.bed_type[index].long" type="number" placeholder="长" :min="0"></el-input>
             <span> m *</span>
-            <el-input style="width: 60px" v-model="addClassificationForm.bed_type[index].wide" type="number" placeholder="宽" :min="0" ></el-input>
+            <el-input style="width: 80px" v-model="addClassificationForm.bed_type[index].wide" type="number" placeholder="宽" :min="0"></el-input>
             <span> m</span>
             <el-input style="width: 60px" v-model="addClassificationForm.bed_type[index].num" type="number" :min="1"></el-input>
             <span> 张</span>
-            <el-button icon="el-icon-plus" circle @click="addBed_type"></el-button>
-            <el-button icon="el-icon-minus" circle v-if="addClassificationForm.bed_type.length > 1" @click="removeBed_type(addClassificationForm.bed_type[index])"></el-button>
+            <el-button icon="el-icon-plus" circle  @click="addBed_type" size="mini"></el-button>
+            <el-button icon="el-icon-minus" size="mini" circle v-if="addClassificationForm.bed_type.length > 1" @click="removeBed_type(addClassificationForm.bed_type[index])"></el-button>
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
@@ -110,7 +107,7 @@ export default {
       await createRoomClassify(this.addClassificationForm).then((res) => {
         this.dialogVisible = false
         this.GetClassifyList()
-        this.$message.success('删除分类成功!')
+        this.$message.success('添加分类成功!')
       })
     },
     async deleteClassify(id) {
@@ -160,6 +157,9 @@ export default {
     }
     .el-button {
       margin-left: 12px;
+    }
+    .el-select{
+      margin-left: 10px;
     }
   }
 }

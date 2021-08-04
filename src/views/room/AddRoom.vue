@@ -60,7 +60,7 @@
                 :auto-upload="false"
                 :on-exceed="handleExceed"
                 :on-change="picsChange"
-                :on-success	="upLoadSuccess"
+                :on-success="upLoadSuccess"
                 ref="upload"
               >
                 <i slot="default" class="el-icon-plus"></i>
@@ -80,7 +80,7 @@
                 <img width="80%" :src="dialogImageUrl" alt="" />
               </el-dialog>
             </el-form-item>
-            <el-form-item label="标签选择:"  style="width: 100%">
+            <el-form-item label="标签选择:" style="width: 100%">
               <el-checkbox-group v-model="roomInfo.room_label">
                 <el-checkbox v-for="(item, index) in roomInfo.all_label.room_label" :key="index" :label="item.id">{{ item.label_name }}</el-checkbox>
               </el-checkbox-group>
@@ -138,7 +138,7 @@ export default {
         inventory: [{ required: true, message: '请输入房间库存', trigger: 'blur' }],
         max_people: [{ required: true, message: '请输入房间最大入住人数', trigger: 'blur' }],
         area: [{ required: true, message: '请输入房间面积', trigger: 'blur' }],
-        status:[{required: true, message: '请选择客房状态', trigger: 'blur'}],
+        status: [{ required: true, message: '请选择客房状态', trigger: 'blur' }],
       },
       activeIndex: 0,
       activeTabIndex: '0',
@@ -155,6 +155,8 @@ export default {
         token: '',
         key: '',
       },
+      uploadPicnum: 0, // 上传成功的图片数量
+      existingPicNum: 0, // 编辑客房时返回的图片数量
       num:0
     }
   },
@@ -171,6 +173,7 @@ export default {
       }
       await getRoomInfo({ id: this.roomId }).then((res) => {
         this.roomInfo = res.data
+        this.existingPicNum = res.data.room_pictures.length
       })
     },
     async getclassifySelect() {
@@ -234,26 +237,55 @@ export default {
         this.roomInfo.room_pictures.splice(k, 1)
       }
     },
-     async upLoadSuccess(){
-        this.num++
-        if(this.roomInfo.room_pictures.length == this.num){
-        this.roomInfo.thumbnail = this.roomInfo.room_pictures[0].response.key
-        if(this.from == 'add'){
-          await createRoom(this.roomInfo).then((res)=>{
+    async upLoadSuccess() {
+      this.num++
+      if (this.from == 'add') {
+        if (this.roomInfo.room_pictures.length == this.num) {
+          this.roomInfo.thumbnail = this.roomInfo.room_pictures[0].response.key
+          await createRoom(this.roomInfo).then((res) => {
             this.num = 0
             this.$message.success('新增房间成功！')
             this.$router.push({ path: '/roomList' })
           })
         }
-        }
+      }
+      if (this.from == 'edit') {
+      this.uploadPicnum-- // 已上传成功的图片数量
+        if(this.uploadPicnum == 0){
+              await editRoom(this.roomInfo).then((res) => {
+              this.uploadPicnum = 0
+              this.$message.success('编辑房间成功！')
+              this.$router.push({ path: '/roomList' })
+            })
+      }
+       
+      }
     },
     submit() {
+      console.log(this.existingPicNum, this.uploadPicnum, this.roomInfo.room_pictures)
       this.$refs.roomInfoForm.validate(async (valid) => {
         this.roomInfo.hotel_id = this.$route.query.hotel_id
-        if(!valid){
+        if (!valid) {
           this.$message.error('请填写完整的客房信息后再进行提交！')
           return
         }
+        if (this.roomInfo.room_pictures.length == 0) {
+          this.$message.error('请至少上传一张房间照片后再进行提交！')
+          return
+        }
+        if (this.existingPicNum > this.roomInfo.room_pictures.length) {
+          await editRoom(this.roomInfo).then((res) => {
+            this.uploadPicnum = 0
+            this.$message.success('编辑房间成功！')
+            this.$router.push({ path: '/roomList' })
+          })
+        }
+        this.uploadPicnum = 0
+        this.roomInfo.room_pictures.forEach((element) => {
+          if (element.status == 'ready') {
+            this.uploadPicnum++
+          }
+        })
         this.$refs.upload.submit()
       })
     },

@@ -59,7 +59,17 @@
         <el-table class="roomListTable" :data="roomListData" style="width: 100%" border @select="selectRow" @select-all="selectAllRow">
           <el-table-column type="selection" width="55"> </el-table-column>
           <el-table-column type="index" width="55"> </el-table-column>
-          <el-table-column prop="room_name" label="房名" width="180"> </el-table-column>
+          <el-table-column prop="room_name" label="房名" >
+            <template slot-scope="scope">
+              <div class="roomName">
+                <el-image style="width: 100px; height: 100px" :src="scope.row.thumbnail"> </el-image>
+                <div>
+                  <p>{{ scope.row.room_name }}</p>
+                  <el-tag>{{ scope.row.name }}</el-tag>
+                </div>
+              </div>
+            </template>
+          </el-table-column>
           <el-table-column prop="price" label="价格"> </el-table-column>
           <el-table-column prop="inventory" label="库存"> </el-table-column>
           <el-table-column prop="sales" label="实际销量"> </el-table-column>
@@ -595,6 +605,10 @@ export default {
     .priceIncrease {
       margin-right: 50px;
     }
+  }
+  .roomName{
+    display: flex;
+    justify-content: space-between;
   }
 }
 </style>
