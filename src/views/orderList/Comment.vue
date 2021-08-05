@@ -22,7 +22,7 @@
             </el-date-picker>
           </el-form-item>
           <el-form-item label="评价来源" size="small ">
-            <el-select v-model="searchForm.resource" placeholder="请选择">
+            <el-select v-model="searchForm.resource">
               <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"> </el-option>
             </el-select>
           </el-form-item>
@@ -43,7 +43,7 @@
           <el-table-column label="操作">
             <template slot-scope="scope">
               <el-button type="text" size="small" @click="showDetail(scope.row.id)">详情</el-button>
-              <el-button type="text" size="small" @click="replay(scope.row.id)">回复</el-button>
+              <el-button type="text" size="small" @click="showReplayDialog(scope.row.id)">回复</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -58,11 +58,11 @@
         :total="total"
       >
       </el-pagination>
-      <el-dialog title="提示" :visible="dialogVisible" width="30%">
-        <span>这是一段信息</span>
+      <el-dialog title="回复" :visible="dialogVisible" width="30%" :before-close="handleClose">
+        <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 4 }" placeholder="回复顾客的评论" v-model="content" resize="none"> </el-input>
         <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+          <el-button @click="handleClose">取 消</el-button>
+          <el-button type="primary" @click="replay">确 定</el-button>
         </span>
       </el-dialog>
     </el-card>
@@ -78,7 +78,7 @@ export default {
       userInfo: {},
       searchForm: {
         hotel_id: '',
-        resource: '',
+        resource: '全部评价',
         keywords: '',
         page: '',
         pageSize: '',
@@ -123,19 +123,24 @@ export default {
           },
         ],
       },
-        dialogVisible:false,
-
+      dialogVisible: false,
+      content: '',
       evaluationData: [],
       options: [
         {
-          value: '订单',
-          label: '订单',
+          value: '全部评价',
+          label: '全部评价',
         },
         {
-          value: '收入',
-          label: '收入',
+          value: '默认评价',
+          label: '默认评价',
+        },
+        {
+          value: '客户评价',
+          label: '客户评价',
         },
       ],
+      replayId: '',
     }
   },
   created() {
@@ -155,10 +160,24 @@ export default {
     showDetail(id) {
       this.$router.push({ path: '/comment/detail', query: { id: id } })
     },
-    async replay(id) {
-      this.dialogVisible = true
+    handleClose() {
+      this.dialogVisible = false
+      this.content = ''
     },
-
+    showReplayDialog(id) {
+      this.dialogVisible = true
+      this.replayId = id
+    },
+    async replay() {
+      await createReply({ id: this.replayId, content: this.content }).then((res) => {
+        console.log(res)
+        this.replayId = ''
+        this.$message.success('回复成功~')
+        this.dialogVisible = false
+        this.content = ''
+        this.getCommentList()
+      })
+    },
     search() {
       if (this.orderTime) {
         this.searchForm.start_date = this.orderTime[0]
