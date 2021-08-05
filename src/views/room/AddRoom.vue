@@ -3,7 +3,8 @@
     <el-card>
       <!-- 面包屑区域 -->
       <el-breadcrumb separator-class="el-icon-arrow-right" class="title">
-        <el-breadcrumb-item :to="{ path: '/roomList' }">客房管理</el-breadcrumb-item>
+        <el-breadcrumb-item>客房管理</el-breadcrumb-item>
+        <el-breadcrumb-item :to="{ path: '/roomList' }">客房列表</el-breadcrumb-item>
         <el-breadcrumb-item v-if="this.from == 'add'" :to="{ path: '/roomList/addRoom' }">添加客房</el-breadcrumb-item>
         <el-breadcrumb-item v-if="this.from == 'edit'" :to="{ path: '/roomList/addRoom' }">编辑客房</el-breadcrumb-item>
       </el-breadcrumb>
@@ -116,7 +117,7 @@
   </div>
 </template>
 <script>
-import { getRoomInfo, uploadToken, createRoom, editRoom, getSelectOption } from '../../assets/api/index.js'
+import { getRoomDetail, uploadToken, createRoom, editRoom, getSelectOption } from '../../assets/api/index.js'
 export default {
   data() {
     return {
@@ -167,11 +168,11 @@ export default {
   methods: {
     async getRoomInfo() {
       if (!this.roomId) {
-        await getRoomInfo({ id: '' }).then((res) => {
+        await getRoomDetail({ id: '' }).then((res) => {
           this.roomInfo = res.data
         })
       }
-      await getRoomInfo({ id: this.roomId }).then((res) => {
+      await getRoomDetail({ id: this.roomId }).then((res) => {
         this.roomInfo = res.data
         this.existingPicNum = res.data.room_pictures.length
       })
@@ -291,8 +292,14 @@ export default {
 }
 </script>
 <style lang="less" scoped>
-.el-breadcrumb {
-  margin-bottom: 50px;
+.title {
+  padding-left: 10px;
+  text-align: left;
+  height: 54px;
+  line-height: 54px;
+  background-color: #fafafa;
+  font-size: 13px;
+  margin-bottom: 30px;
 }
 .el-steps {
   width: 500px;

@@ -8,19 +8,19 @@
       </el-breadcrumb>
       <div class="main">
         <div>
-          <span>订单编号：1233531323</span>
-          <span>房间类型：大床房</span>
-          <span>入住时间：2021-07-14 17:50:21</span>
+          <span>{{ '订单编号：' + commentDetialData.order_sn }}</span>
+          <span>{{ '房间类型：' + commentDetialData.room_name }}</span>
+          <span>{{ '入住时间：' + commentDetialData.arrival_date }}</span>
         </div>
         <div>
-          <span>用户昵称：张三</span>
-          <span>入住人：袁杰是二杯</span>
-          <span>电话号码：13888888888</span>
+          <span>{{ '用户昵称：' + commentDetialData.nickname }}</span>
+          <span>{{ '入住人：' + commentDetialData.contact_name }}</span>
+          <span>{{ '电话号码：' + commentDetialData.mobile }}</span>
         </div>
         <div>
-          <span>用户评分：10.0</span>
-          <span>状态：入住成功</span>
-          <span>评论时间：2021-07-14 17:50:21</span>
+          <span>{{ '用户评分：' + commentDetialData.ratings }}</span>
+          <span>{{ '状态：' + commentDetialData.status }}</span>
+          <span>{{ '评论时间：' + commentDetialData.created_at }}</span>
         </div>
         <div>
           <span>提交图片：</span>
@@ -28,8 +28,20 @@
           <span></span>
         </div>
       </div>
-      <div class="demo-image__preview" style="width: 1000px">
-        <el-image v-for="(ele, index) in srcList" :key="index" style="width: 180px; height: 180px" :src="url" :preview-src-list="srcList" fit="cover"></el-image>
+      <div class="demo-image__preview" style="width: 100%">
+        <video width="250" height="200" v-for="(video, index) in commentDetialData.file.video" :key="video + index" controls class="videolist">
+          <template slot-scope="scope">
+            <source :src="scope" type="video/mp4" />
+          </template>
+        </video>
+        <el-image
+          v-for="(ele, index) in commentDetialData.file.picture"
+          :key="ele + index"
+          style="width: 250px; height: 200px"
+          :src="ele"
+          :preview-src-list="commentDetialData.file.picture"
+          fit="cover"
+        ></el-image>
       </div>
       <div class="message">
         <span>提交的信息：</span>
@@ -38,59 +50,54 @@
       </div>
       <div class="comment">
         <div v-for="(ele, index) in commentList" :key="index" class="message">
-          <span class="content">{{ commentList[index].content }}</span>
-          <span class="contentTime">{{ commentList[index].contentTime }}</span>
+          <span :class="ele.source == '商家' ? 'is_reply' : 'content'">{{ ele.content }}</span>
+          <span class="contentTime">{{ ele.created_at }}</span>
         </div>
       </div>
       <div class="reply">
-        <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 4 }" placeholder="追加回复" v-model="textarea" resize="none"> </el-input>
-        <el-button>提交</el-button>
+        <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 4 }" placeholder="追加回复" v-model="content" resize="none"> </el-input>
+        <el-button type="primary" @click="reply">确认</el-button>
       </div>
     </el-card>
   </div>
 </template>
 
 <script>
+import { getCommentDetial, createReply } from '../../assets/api/index.js'
 export default {
   name: 'EvaluateDetail',
   data() {
     return {
-      url: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
-      srcList: [
-        'https://fuss10.elemecdn.com/8/27/f01c15bb73e1ef3793e64e6b7bbccjpeg.jpeg',
-        'https://fuss10.elemecdn.com/1/8e/aeffeb4de74e2fde4bd74fc7b4486jpeg.jpeg',
-        'https://fuss10.elemecdn.com/1/8e/aeffeb4de74e2fde4bd74fc7b4486jpeg.jpeg',
-        'https://fuss10.elemecdn.com/1/8e/aeffeb4de74e2fde4bd74fc7b4486jpeg.jpeg',
-        // "https://fuss10.elemecdn.com/1/8e/aeffeb4de74e2fde4bd74fc7b4486jpeg.jpeg",
-        // "https://fuss10.elemecdn.com/1/8e/aeffeb4de74e2fde4bd74fc7b4486jpeg.jpeg",
-        // "https://fuss10.elemecdn.com/1/8e/aeffeb4de74e2fde4bd74fc7b4486jpeg.jpeg",
-        // "https://fuss10.elemecdn.com/1/8e/aeffeb4de74e2fde4bd74fc7b4486jpeg.jpeg",
-        // "https://fuss10.elemecdn.com/1/8e/aeffeb4de74e2fde4bd74fc7b4486jpeg.jpeg",
-      ],
-      commentList: [
-        {
-          content: '嗯，这家酒店很好，相当不错，住的很啊啊啊啊啊灑蘇打水多啊啊啊啊舒服。',
-          contentTime: '2021/07/12   17：55：10',
+      id: '', // 评论的id
+      url: '',
+      srcList: [],
+      commentList: [],
+      content: '',
+      commentDetialData: {
+        file: {
+          picture: [],
+          video: [],
         },
-        {
-          content: '嗯，这家酒店很好，相当不错，住的很舒服。',
-          contentTime: '2021/07/12   17：55：10',
-        },
-        {
-          content: '嗯，这家酒店很好，相当不错，住的很舒服。',
-          contentTime: '2021/07/12   17：55：10',
-        },
-        {
-          content: '嗯，这家酒店很好，相当不错，住的很舒服。',
-          contentTime: '2021/07/12   17：55：10',
-        },
-        {
-          content: '嗯，这家酒店很好，相当不错，住的很舒服。',
-          contentTime: '2021/07/12   17：55：10',
-        },
-      ],
-      textarea: '',
+      },
     }
+  },
+  created() {
+    this.id = this.$route.query.id
+    this.commentDetial()
+  },
+  methods: {
+    async commentDetial() {
+      await getCommentDetial({ id: this.id }).then((res) => {
+        this.commentDetialData = res.data[0]
+        this.commentList = res.data[0].commentInfo
+      })
+    },
+    async reply() {
+      await createReply({ id: this.id, content: this.content, is_reply: this.commentList[this.commentList.length - 1].is_reply }).then((res) => {
+        this.$message('回复成功~')
+        this.commentDetial()
+      })
+    },
   },
 }
 </script> 
@@ -149,6 +156,12 @@ export default {
       width: 90px;
       height: 50px;
     }
+  }
+  .is_reply {
+    color: red;
+  }
+  .videolist {
+    margin: 10px 10px;
   }
 }
 </style>

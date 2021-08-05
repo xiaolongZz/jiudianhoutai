@@ -36,7 +36,7 @@ let getSelectOption = (obj) => {
     return axios.post('/hotelv2/index/merchant/room/getSelectOption', obj)
 }
 // 获取客房信息
-let getRoomInfo = (obj) => {
+let getRoomDetail = (obj) => {
     return axios.post('/hotelv2/index/merchant/room/getDetail', obj)
 }
 // 编辑客房
@@ -172,7 +172,7 @@ export {
     editRoom,
     classifySelect,
     getSelectOption,
-    getRoomInfo,
+    getRoomDetail,
     exportRoom,
     uploadToken,
     updatePrice,

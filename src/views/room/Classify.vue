@@ -2,7 +2,7 @@
   <div>
     <el-card>
       <!-- 面包屑区域 -->
-      <el-breadcrumb separator-class="el-icon-arrow-right">
+      <el-breadcrumb separator-class="el-icon-arrow-right" class="title">
         <el-breadcrumb-item :to="{ path: '/roomList' }">客房管理</el-breadcrumb-item>
         <el-breadcrumb-item :to="{ path: '/classify' }">分类管理</el-breadcrumb-item>
       </el-breadcrumb>

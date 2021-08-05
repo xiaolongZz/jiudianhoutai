@@ -2,7 +2,7 @@
   <div>
     <el-card>
       <el-breadcrumb separator-class="el-icon-arrow-right" class="title">
-        <el-breadcrumb-item :to="{ path: '/room' }">客房管理</el-breadcrumb-item>
+        <el-breadcrumb-item >客房管理</el-breadcrumb-item>
         <el-breadcrumb-item :to="{ path: '/room/roomlist' }">客房列表</el-breadcrumb-item>
       </el-breadcrumb>
       <div class="tabs">
@@ -81,6 +81,7 @@
           </el-table-column>
           <el-table-column prop="address" label="操作">
             <template slot-scope="scope">
+              <el-button type="text" size="small" @click="roomDetail(scope.row)">详情</el-button>
               <el-button type="text" size="small" v-if="scope.row.status == 1" @click="offShelfRoom(scope.row.id)">下架</el-button>
               <el-button type="text" size="small" v-if="scope.row.status == 0" @click="onShelfRoom(scope.row.id)">上架</el-button>
               <el-button type="text" size="small" @click="editRoom(scope.row)">编辑</el-button>
@@ -435,6 +436,9 @@ export default {
     },
     editRoom(itm) {
       this.$router.push({ path: '/roomList/addRoom', query: { hotel_id: itm.hotel_id, roomId: itm.id, from: 'edit' } })
+    },
+    roomDetail(itm) {
+      this.$router.push({ path: '/roomList/roomdetail', query: { hotel_id: itm.hotel_id, roomId: itm.id} })
     },
     async deleRoom(itm) {
       console.log(itm instanceof Array)

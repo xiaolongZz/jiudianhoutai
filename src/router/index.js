@@ -11,6 +11,10 @@ import CommentDetail from '../views/orderList/CommentDetail.vue'
 import RoomList from '../views/room/RoomList.vue'
 import Classify from '../views/room/Classify.vue'
 import AddRoom from '../views/room/AddRoom.vue'
+import RoomDetail from '../views/room/RoomDetail.vue'
+import Facilities from '../views/set/Facilities.vue'
+import Role from '../views/set/Role.vue'
+import AddRole from '../views/set/AddRole.vue'
 Vue.use(VueRouter)
 
 const routes = [
@@ -27,9 +31,11 @@ const routes = [
     { path: '/roomList', component: RoomList },
     { path: '/classify', component: Classify },
     { path: '/roomList/addRoom', component: AddRoom },
-
-
-
+    { path: '/roomList/roomdetail', component: RoomDetail },
+    { path: '/facilities', component: Facilities },
+    { path: '/role', component: Role },
+    { path: '/role/addrole', component: AddRole },
+    // /role
     ]
   },
 

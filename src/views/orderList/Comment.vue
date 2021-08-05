@@ -4,63 +4,95 @@
       <div class="title">评价管理</div>
       <div class="search">
         <el-form ref="form" :model="searchForm" label-width="80px" class="searchForm">
-          <el-form-item label="关键词" size="small ">
-            <el-input v-model="searchForm.number" placeholder="房型/订单编号"></el-input>
+          <el-form-item label="关键词" size="small " style="width: 350px">
+            <el-input v-model="searchForm.keywords" placeholder="房型/订单编号"></el-input>
           </el-form-item>
           <el-form-item label="下单时间" size="small ">
             <el-date-picker
-              v-model="searchForm.orderTime"
-              type="datetimerange"
-              :picker-options="orderPickerOptions"
+              v-model="orderTime"
+              type="daterange"
+              align="right"
+              unlink-panels
               range-separator="至"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
-              align="right"
+              :picker-options="pickerOptions"
+              value-format="yyyy-MM-dd"
             >
             </el-date-picker>
           </el-form-item>
           <el-form-item label="评价来源" size="small ">
-            <el-select v-model="searchForm.state" placeholder="请选择">
+            <el-select v-model="searchForm.resource" placeholder="请选择">
               <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"> </el-option>
             </el-select>
           </el-form-item>
         </el-form>
       </div>
       <div class="searchbtn">
-        <el-button>查询</el-button>
+        <el-button @click="search">查询</el-button>
       </div>
       <div class="evaluationList">
         <el-table :data="evaluationData" border style="width: 100%">
-          <el-table-column prop="num" label="订单编号"></el-table-column>
-          <el-table-column prop="room" label="房型"></el-table-column>
-          <el-table-column prop="message" label="评价信息"> </el-table-column>
-          <el-table-column prop="lever" label="评分等级"> </el-table-column>
-          <el-table-column prop="state" label="评价状态"> </el-table-column>
-          <el-table-column prop="name" label="用户昵称"> </el-table-column>
-          <el-table-column prop="time" label="评价时间"> </el-table-column>
+          <el-table-column prop="order_sn" label="订单编号"></el-table-column>
+          <el-table-column prop="room_name" label="房型"></el-table-column>
+          <el-table-column prop="content" label="评价信息"> </el-table-column>
+          <el-table-column prop="ratings" label="评分等级"> </el-table-column>
+          <el-table-column prop="status" label="评价状态"> </el-table-column>
+          <el-table-column prop="nickname" label="用户昵称"> </el-table-column>
+          <el-table-column prop="created_at" label="评价时间"> </el-table-column>
           <el-table-column label="操作">
-            <!-- eslint-disable-next-line -->
             <template slot-scope="scope">
-              <el-button type="text" size="small" @click="showDetail">详情</el-button>
-              <el-button type="text" size="small">回复</el-button>
+              <el-button type="text" size="small" @click="showDetail(scope.row.id)">详情</el-button>
+              <el-button type="text" size="small" @click="replay(scope.row.id)">回复</el-button>
             </template>
           </el-table-column>
         </el-table>
       </div>
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="[5, 10, 20, 50]"
+        :page-size="10"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+      >
+      </el-pagination>
+      <el-dialog title="提示" :visible="dialogVisible" width="30%">
+        <span>这是一段信息</span>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisible = false">取 消</el-button>
+          <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        </span>
+      </el-dialog>
     </el-card>
   </div>
 </template>
 
 <script>
+import { getHotelComment, createReply } from '../../assets/api/index.js'
 export default {
   name: 'Evaluationmanagement',
   data() {
     return {
+      userInfo: {},
       searchForm: {
-        number: '',
-        orderTime: '',
+        hotel_id: '',
+        resource: '',
+        keywords: '',
+        page: '',
+        pageSize: '',
+        start_date: '',
+        finish_date: '',
       },
-      orderPickerOptions: {
+      // 当前页数
+      currentPage: 1,
+      // 一页显示的条数
+      pageSize: 10,
+      // 总条数
+      total: 0,
+      orderTime: '',
+      pickerOptions: {
         shortcuts: [
           {
             text: '最近一周',
@@ -91,35 +123,9 @@ export default {
           },
         ],
       },
-      evaluationData: [
-        {
-          num: 5201314,
-          room: '大床房',
-          message: '垃圾房间',
-          lever: '5.0',
-          state: '生效',
-          name: '海绵宝宝',
-          time: '2021-07-17',
-        },
-        {
-          num: 5201314,
-          room: '大床房',
-          message: '垃圾房间',
-          lever: '5.0',
-          state: '生效',
-          name: '海绵宝宝',
-          time: '2021-07-17',
-        },
-        {
-          num: 5201314,
-          room: '大床房',
-          message: '垃圾房间',
-          lever: '5.0',
-          state: '生效',
-          name: '海绵宝宝',
-          time: '2021-07-17',
-        },
-      ],
+        dialogVisible:false,
+
+      evaluationData: [],
       options: [
         {
           value: '订单',
@@ -132,9 +138,40 @@ export default {
       ],
     }
   },
+  created() {
+    this.userInfo = JSON.parse(window.sessionStorage.getItem('userInfo'))
+    this.getCommentList()
+  },
   methods: {
-    showDetail() {
-      this.$router.push({ path: '/comment/detail' })
+    async getCommentList() {
+      this.searchForm.hotel_id = this.userInfo.hotel_id
+      this.searchForm.page = this.currentPage
+      this.searchForm.pageSize = this.pageSize
+      await getHotelComment(this.searchForm).then((res) => {
+        this.total = res.data.total
+        this.evaluationData = res.data.list
+      })
+    },
+    showDetail(id) {
+      this.$router.push({ path: '/comment/detail', query: { id: id } })
+    },
+    async replay(id) {
+      this.dialogVisible = true
+    },
+
+    search() {
+      if (this.orderTime) {
+        this.searchForm.start_date = this.orderTime[0]
+        this.searchForm.finish_date = this.orderTime[1]
+      }
+    },
+    handleSizeChange(val) {
+      this.pageSize = val
+      this.getCommentList()
+    },
+    handleCurrentChange(val) {
+      this.currentPage = val
+      this.getCommentList()
     },
   },
 }
@@ -155,7 +192,7 @@ export default {
     .searchForm {
       display: flex;
       flex-wrap: wrap;
-      justify-content: space-around;
+      justify-content: space-between;
       .el-form-item {
         width: 480px;
         display: inline-block;
@@ -170,12 +207,16 @@ export default {
     position: relative;
     .el-button {
       position: absolute;
-      right: 239px;
+      right: 200px;
       width: 130px;
     }
   }
   .evaluationList {
     margin-top: 20px;
+  }
+  .el-pagination {
+    margin-top: 15px;
+    text-align: center;
   }
 }
 </style>
