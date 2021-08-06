@@ -5,7 +5,7 @@
       <div class="search">
         <el-form ref="form" :model="searchForm" label-width="80px" class="searchForm">
           <el-form-item label="关键词" size="small " style="width: 350px">
-            <el-input v-model="searchForm.keywords" placeholder="房型/订单编号"></el-input>
+            <el-input v-model="searchForm.keywords" placeholder="房型/订单编号" clearable></el-input>
           </el-form-item>
           <el-form-item label="下单时间" size="small ">
             <el-date-picker
@@ -183,10 +183,16 @@ export default {
         this.searchForm.start_date = this.orderTime[0]
         this.searchForm.finish_date = this.orderTime[1]
       }
+      if(!this.orderTime){
+        this.searchForm.start_date=''
+        this.searchForm.finish_date=''
+      }
+      this.getCommentList()
     },
     handleSizeChange(val) {
       this.pageSize = val
       this.getCommentList()
+      
     },
     handleCurrentChange(val) {
       this.currentPage = val

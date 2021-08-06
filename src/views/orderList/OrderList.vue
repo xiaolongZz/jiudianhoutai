@@ -5,12 +5,13 @@
       <div class="search">
         <el-form ref="form" :model="searchForm" label-width="80px" class="searchForm">
           <el-form-item label="订单编号" size="small ">
-            <el-input v-model="searchForm.number"></el-input>
+            <el-input v-model="searchForm.number" clearable></el-input>
           </el-form-item>
           <el-form-item label="下单时间" size="small ">
             <el-date-picker
               v-model="searchForm.orderTime"
-              type="datetimerange"
+              value-format="yyyy-MM-dd"
+              type="daterange"
               :picker-options="orderPickerOptions"
               range-separator="至"
               start-placeholder="开始日期"
@@ -22,7 +23,8 @@
           <el-form-item label="入住时间" size="small ">
             <el-date-picker
               v-model="searchForm.CheckInTime"
-              type="datetimerange"
+              value-format="yyyy-MM-dd"
+              type="daterange"
               :picker-options="orderPickerOptions"
               range-separator="至"
               start-placeholder="开始日期"
@@ -34,7 +36,8 @@
           <el-form-item label="支付时间" size="small ">
             <el-date-picker
               v-model="searchForm.payTime"
-              type="datetimerange"
+              value-format="yyyy-MM-dd"
+              type="daterange"
               :picker-options="orderPickerOptions"
               range-separator="至"
               start-placeholder="开始日期"
@@ -46,7 +49,8 @@
           <el-form-item label="离店时间" size="small ">
             <el-date-picker
               v-model="searchForm.leaveTime"
-              type="datetimerange"
+              value-format="yyyy-MM-dd"
+              type="daterange"
               :picker-options="orderPickerOptions"
               range-separator="至"
               start-placeholder="开始日期"
@@ -56,20 +60,20 @@
             </el-date-picker>
           </el-form-item>
           <el-form-item label="订单状态" size="small ">
-            <el-select v-model="searchForm.state" placeholder="请选择">
-              <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+            <el-select v-model="searchForm.state" placeholder="请选择" clearable>
+              <el-option v-for="item in orderStatus" :key="item.value" :label="item.label" :value="item.value"> </el-option>
             </el-select>
           </el-form-item>
           <el-form-item label="手机号" size="small ">
-            <el-input v-model="searchForm.tel"></el-input>
+            <el-input v-model="searchForm.tel" clearable></el-input>
           </el-form-item>
           <el-form-item label="支付方式" size="small ">
-            <el-select v-model="searchForm.payType" placeholder="请选择">
-              <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+            <el-select v-model="searchForm.payType" placeholder="请选择" clearable>
+              <el-option v-for="item in pay_type" :key="item.value" :label="item.label" :value="item.value"> </el-option>
             </el-select>
           </el-form-item>
           <el-form-item size="small ">
-            <el-button size="medium ">查询</el-button>
+            <el-button size="medium " @click="search">查询</el-button>
             <el-button size="medium ">导出</el-button>
           </el-form-item>
         </el-form>
@@ -110,6 +114,7 @@
   </div>
 </template>
 <script>
+import { orderOption } from '../../assets/api/index.js'
 export default {
   name: 'Ordermanagement',
   data() {
@@ -157,7 +162,23 @@ export default {
       },
       tableData: [],
       options: {},
+      pay_type: [], // 支付方式
+      orderStatus: [], // 订单状态
     }
+  },
+  created() {
+    this.getOrderOption()
+  },
+  methods: {
+    async getOrderOption() {
+      await orderOption().then((res) => {
+        this.pay_type = res.data.pay_type.options
+        this.orderStatus = res.data.status.options
+      })
+    },
+    search() {
+      console.log(this.searchForm)
+    },
   },
 }
 </script>

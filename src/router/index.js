@@ -15,6 +15,7 @@ import RoomDetail from '../views/room/RoomDetail.vue'
 import Facilities from '../views/set/Facilities.vue'
 import Role from '../views/set/Role.vue'
 import AddRole from '../views/set/AddRole.vue'
+
 Vue.use(VueRouter)
 
 const routes = [
@@ -35,7 +36,6 @@ const routes = [
     { path: '/facilities', component: Facilities },
     { path: '/role', component: Role },
     { path: '/role/addrole', component: AddRole },
-    // /role
     ]
   },
 

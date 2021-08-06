@@ -14,13 +14,24 @@ let userLogin = (obj) => {
 }
 //*************************************************************首页相关接口********************************************************************* */
 
-
 //*************************************************************订单模块相关接口***************************************************************** */
 
-
-
-
-
+// 订单列表页面下拉框选项
+let orderOption = (obj) => {
+    return axios.post('/hotelv2/index/merchant/order/orderOption', obj)
+}
+// 酒店评论列表
+let getHotelComment = (obj) => {
+    return axios.post('/hotelv2/index/merchant/comment/getHotelComment', obj)
+}
+// 评论详情
+let getCommentDetial = (obj) => {
+    return axios.post('/hotelv2/index/merchant/comment/getCommentDetial', obj)
+}
+// 新增评论回复
+let createReply = (obj) => {
+    return axios.post('/hotelv2/index/merchant/comment/createReply', obj)
+}
 //*************************************************************客房管理相关接口***************************************************************** */
 
 //  获取房间列表接口
@@ -91,10 +102,13 @@ let changeStatus = (obj) => {
 let getClassifyList = (obj) => {
     return axios.post('/hotelv2/index/merchant/roomClassify/getClassifyList', obj)
 }
+// 酒店标签下拉框
+let hotellableSelect = (obj) => {
+    return axios.post('/hotelv2/index/merchant/lable/hotellableSelect', obj)
+}
+
 //*************************************************************财务管理相关接口***************************************************************** */
 //*************************************************************系统设置相关接口***************************************************************** */
-
-
 // 员工信息
 let getUserInfo = (obj) => {
     return axios.post('/hotelv2/index/merchant/user/getUserInfo', obj)
@@ -123,18 +137,6 @@ let deleteRole = (obj) => {
 let getUserList = (obj) => {
     return axios.post('/hotelv2/index/merchant/user/getUserList', obj)
 }
-// 酒店评论列表
-let getHotelComment = (obj) => {
-    return axios.post('/hotelv2/index/merchant/comment/getHotelComment', obj)
-}
-// 评论详情
-let getCommentDetial = (obj) => {
-    return axios.post('/hotelv2/index/merchant/comment/getCommentDetial', obj)
-}
-// 新增评论回复
-let createReply = (obj) => {
-    return axios.post('/hotelv2/index/merchant/comment/createReply', obj)
-}
 // 更新员工账户信息
 let updateUser = (obj) => {
     return axios.post('/hotelv2/index/merchant/user/updateUser', obj)
@@ -147,7 +149,6 @@ let roleList = (obj) => {
 let getRole = (obj) => {
     return axios.post('/hotelv2/index/merchant/role/getRole', obj)
 }
-
 // 添加角色
 let createRole = (obj) => {
     return axios.post('/hotelv2/index/merchant/role/createRole', obj)
@@ -156,9 +157,9 @@ let createRole = (obj) => {
 let editRole = (obj) => {
     return axios.post('/hotelv2/index/merchant/role/editRole', obj)
 }
-// 酒店标签下拉框
-let hotellableSelect = (obj) => {
-    return axios.post('/hotelv2/index/merchant/lable/hotellableSelect', obj)
+//高德地图坐标转换定位
+const restapiLongitudeLatitude=()=>{
+    return axios.get(`https://restapi.amap.com/v3/assistant/inputtips?key=83ac6df73e7176011d65a143204ad653`)
 }
 
 export {
@@ -197,7 +198,9 @@ export {
     deleteRoomClassify,
     deleteRoom,
     createRoomClassify,
-    getUser
+    getUser,
+    orderOption,
+    restapiLongitudeLatitude
 
 
 }
