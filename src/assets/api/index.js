@@ -13,7 +13,10 @@ let userLogin = (obj) => {
     return axios.post('/hotelv2/index/merchant/auth/userLogin', obj)
 }
 //*************************************************************首页相关接口********************************************************************* */
-
+// 首页订单和收入统计
+let statistics = (obj) => {
+    return axios.post('/hotelv2/index/merchant/order/statistics', obj)
+}
 //*************************************************************订单模块相关接口***************************************************************** */
 
 // 订单列表页面下拉框选项
@@ -31,6 +34,18 @@ let getCommentDetial = (obj) => {
 // 新增评论回复
 let createReply = (obj) => {
     return axios.post('/hotelv2/index/merchant/comment/createReply', obj)
+}
+//订单列表
+let orderList = (obj) => {
+    return axios.post('/hotelv2/index/merchant/order/orderList', obj)
+}
+//订单详情
+let orderDetails = (obj) => {
+    return axios.post('/hotelv2/index/merchant/order/orderDetails', obj)
+}
+//删除订单
+let deleteOrder = (obj) => {
+    return axios.post('/hotelv2/index/merchant/order/delete', obj)
 }
 //*************************************************************客房管理相关接口***************************************************************** */
 
@@ -200,7 +215,9 @@ export {
     createRoomClassify,
     getUser,
     orderOption,
-    restapiLongitudeLatitude
-
-
+    restapiLongitudeLatitude,
+    orderList,
+    orderDetails,
+    deleteOrder,
+    statistics
 }

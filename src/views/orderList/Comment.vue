@@ -78,7 +78,7 @@ export default {
       userInfo: {},
       searchForm: {
         hotel_id: '',
-        resource: '全部评价',
+        resource: '',
         keywords: '',
         page: '',
         pageSize: '',
@@ -126,20 +126,7 @@ export default {
       dialogVisible: false,
       content: '',
       evaluationData: [],
-      options: [
-        {
-          value: '全部评价',
-          label: '全部评价',
-        },
-        {
-          value: '默认评价',
-          label: '默认评价',
-        },
-        {
-          value: '客户评价',
-          label: '客户评价',
-        },
-      ],
+      options: [],
       replayId: '',
     }
   },

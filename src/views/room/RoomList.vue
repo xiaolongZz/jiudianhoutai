@@ -441,7 +441,6 @@ export default {
       this.$router.push({ path: '/roomList/roomdetail', query: { hotel_id: itm.hotel_id, roomId: itm.id} })
     },
     async deleRoom(itm) {
-      console.log(itm instanceof Array)
       let idArray = []
       if (itm instanceof Array) {
         idArray = itm

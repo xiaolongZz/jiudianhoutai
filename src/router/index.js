@@ -3,9 +3,9 @@ import VueRouter from 'vue-router'
 import Login from '../views/Login.vue'
 import Index from '../views/Index.vue'
 import Home from '../views/home/Home.vue'
-
 import Welcome from '../views/Welcome.vue'
 import OrderList from '../views/orderList/OrderList.vue'
+import OrderDetail from '../views/orderList/OrderDetail.vue'
 import Comment from '../views/orderList/Comment.vue'
 import CommentDetail from '../views/orderList/CommentDetail.vue'
 import RoomList from '../views/room/RoomList.vue'
@@ -36,6 +36,7 @@ const routes = [
     { path: '/facilities', component: Facilities },
     { path: '/role', component: Role },
     { path: '/role/addrole', component: AddRole },
+    { path: '/orderList/orderdetail', component: OrderDetail },
     ]
   },
 

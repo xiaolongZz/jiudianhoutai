@@ -157,8 +157,8 @@ export default {
         key: '',
       },
       uploadPicnum: 0, // 上传成功的图片数量
-      existingPicNum: 0, // 编辑客房时返回的图片数量
       num: 0,
+      roomPic:[]
     }
   },
   created() {
@@ -174,7 +174,7 @@ export default {
       }
       await getRoomDetail({ id: this.roomId }).then((res) => {
         this.roomInfo = res.data
-        this.existingPicNum = res.data.room_pictures.length
+        this.roomPic= res.data.room_pictures
       })
     },
     async getclassifySelect() {
@@ -272,13 +272,6 @@ export default {
           this.$message.error('请至少上传一张房间照片后再进行提交！')
           return
         }
-        if (this.existingPicNum > this.roomInfo.room_pictures.length) {
-          await editRoom(this.roomInfo).then((res) => {
-            this.uploadPicnum = 0
-            this.$message.success('编辑房间成功！')
-            this.$router.push({ path: '/roomList' })
-          })
-        }
         this.uploadPicnum = 0
         this.roomInfo.room_pictures.forEach((element) => {
           if (element.status == 'ready') {
@@ -286,6 +279,13 @@ export default {
           }
         })
         this.$refs.upload.submit()
+        if (this.roomPic == this.roomInfo.room_pictures) {
+          await editRoom(this.roomInfo).then((res) => {
+            this.uploadPicnum = 0
+            this.$message.success('编辑房间成功！')
+            this.$router.push({ path: '/roomList' })
+          })
+        }
       })
     },
   },

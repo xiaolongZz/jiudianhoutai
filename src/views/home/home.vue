@@ -7,7 +7,7 @@
         <el-form ref="form" :model="searchForm" label-width="80px" class="searchForm">
           <el-form-item label="时间选择">
             <el-date-picker
-              v-model="searchForm.searchDate"
+              v-model="searchDate"
               type="daterange"
               align="right"
               unlink-panels
@@ -19,7 +19,7 @@
             </el-date-picker>
           </el-form-item>
           <el-form-item label="订单类别" size="small ">
-            <el-select v-model="searchForm.value" placeholder="请选择">
+            <el-select v-model="searchForm.type" placeholder="请选择">
               <el-option v-for="item in searchForm.options" :key="item.value" :label="item.label" :value="item.value"> </el-option>
             </el-select>
           </el-form-item>
@@ -58,6 +58,7 @@
 </template>
 
 <script>
+import { statistics } from '../../assets/api/index.js'
 // 按需引入 引入 ECharts 主模块
 var echarts = require('echarts/lib/echarts')
 // 引入柱状图
@@ -69,21 +70,14 @@ export default {
   name: 'Home',
   data() {
     return {
+      userInfo: {},
       searchForm: {
-        searchDate: '',
-        name: '',
-        options: [
-          {
-            value: '订单',
-            label: '订单',
-          },
-          {
-            value: '收入',
-            label: '收入',
-          },
-        ],
-        value: '订单',
+        hotel_id: '',
+        start_time: '',
+        end_time: '',
+        type: '1',
       },
+      searchDate: '',
       pickerOptions: {
         shortcuts: [
           {
@@ -115,34 +109,27 @@ export default {
           },
         ],
       },
+      datalist: [],
+      datatime: [],
     }
   },
-  mounted() {
+  created() {
+    this.userInfo = JSON.parse(window.sessionStorage.getItem('userInfo'))
+    this.getstatistics()
+  },
+ mounted() {
     var echarts = require('echarts')
     // 初始化echarts实例
     var myChart = echarts.init(document.getElementById('main'))
     var myChart1 = echarts.init(document.getElementById('main1'))
+    console.log(JSON.parse(JSON.stringify(this.datatime)));
     // 配置参数
     var option = {
-      title: {
-        text: '兑换情况',
-      },
       tooltip: {},
-      legend: {
-        data: ['销量'],
-      },
-      xAxis: {
-        data: ['衬衫', '羊毛衫', '雪纺衫', '裤子', '高跟鞋', '袜子', '衬衫', '羊毛衫', '雪纺衫', '裤子', '高跟鞋', '袜子', '衬衫', '羊毛衫', '雪纺衫', '裤子', '高跟鞋', '袜子'],
-      },
+      legend: {data: ['订单量']},
+      xAxis: { data: JSON.parse(JSON.stringify(this.datatime))},
       yAxis: {},
-      series: [
-        {
-          name: '销量',
-          type: 'bar',
-          data: [5, 20, 36, 10, 10, 20, 5, 20, 36, 10, 10, 20, 5, 20, 36, 10, 10, 20],
-        },
-      ],
-    }
+      series: [{name: '订单',type: 'bar',data: ['0','5','3','1','5','3','1','5','3',],},],}
     var option1 = {
       series: [
         {
@@ -161,6 +148,24 @@ export default {
     }
     myChart.setOption(option)
     myChart1.setOption(option1)
+  },
+  methods: {
+    async getstatistics() {
+      this.searchForm.hotel_id = this.userInfo.hotel_id
+      await statistics(this.searchForm).then((res) => {
+        console.log(res.data)
+        this.datalist = res.data
+        this.dasfas()
+      })
+    },
+    dasfas() {
+      this.datalist.forEach((item) => {
+        // console.log(item.data)
+        // console.log(item.time)
+        this.datatime.push(item.time)
+        console.log(this.datatime);
+      })
+    },
   },
 }
 </script>
