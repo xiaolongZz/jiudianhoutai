@@ -50,8 +50,7 @@
     </el-card>
     <el-dialog title="提示" :visible.sync="dialogVisible" width="50%" :before-close="handleClose">
       <div class="posion">
-        <div>123</div>
-        <div id="container"></div>
+        <MyMap @func="dfsdfds(arguments)"> </MyMap>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="handleClose">取 消</el-button>
@@ -60,13 +59,18 @@
     </el-dialog>
   </div>
 </template>
-
 <script>
 // import { restapiLongitudeLatitude } from '../../assets/api/index.js'
+import MyMap from './my-map.vue'
 export default {
+  components: {
+    MyMap,
+  },
   created() {},
   data() {
     return {
+      map: '',
+      sdsadadas: '',
       activeIndex: 0,
       form: {
         chineseName: '',
@@ -120,13 +124,16 @@ export default {
       dialogVisible: false,
     }
   },
+  mounted() {},
   methods: {
     handleClose() {
       this.dialogVisible = false
     },
     async chooseID() {
       this.dialogVisible = true
-      console.log(222222222)
+    },
+    dfsdfds(data) {
+      console.log(data[0], data[1], data[2])
     },
   },
 }
@@ -145,11 +152,11 @@ export default {
   margin-top: 20px;
   margin-bottom: 20px;
 }
+#container {
+  width: 100%;
+  height: 500px;
+}
 .posion {
   text-align: center;
-  #container {
-    width: 100%;
-    height: 500px;
-  }
 }
 </style>

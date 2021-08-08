@@ -15,6 +15,7 @@
               start-placeholder="开始日期"
               end-placeholder="结束日期"
               :picker-options="pickerOptions"
+              value-format="yyyy-MM-dd"
             >
             </el-date-picker>
           </el-form-item>
@@ -24,7 +25,7 @@
             </el-select>
           </el-form-item>
           <el-form-item size="small ">
-            <el-button class="searchbtn">查询</el-button>
+            <el-button class="searchbtn" @click="search">查询</el-button>
             <el-button class="searchbtn">导出</el-button>
           </el-form-item>
         </el-form>
@@ -44,6 +45,7 @@
               start-placeholder="开始日期"
               end-placeholder="结束日期"
               :picker-options="pickerOptions"
+              value-format="yyyy-MM-dd"
             >
             </el-date-picker>
           </div>
@@ -107,64 +109,83 @@ export default {
               picker.$emit('pick', [start, end])
             },
           },
+          {
+            text: '最近半年',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 180)
+              picker.$emit('pick', [start, end])
+            },
+          },
         ],
       },
       datalist: [],
       datatime: [],
+      datadata: [],
     }
   },
   created() {
     this.userInfo = JSON.parse(window.sessionStorage.getItem('userInfo'))
     this.getstatistics()
   },
- mounted() {
+  mounted() {
     var echarts = require('echarts')
-    // 初始化echarts实例
-    var myChart = echarts.init(document.getElementById('main'))
-    var myChart1 = echarts.init(document.getElementById('main1'))
-    console.log(JSON.parse(JSON.stringify(this.datatime)));
-    // 配置参数
-    var option = {
-      tooltip: {},
-      legend: {data: ['订单量']},
-      xAxis: { data: JSON.parse(JSON.stringify(this.datatime))},
-      yAxis: {},
-      series: [{name: '订单',type: 'bar',data: ['0','5','3','1','5','3','1','5','3',],},],}
-    var option1 = {
-      series: [
-        {
-          name: '访问来源',
-          type: 'pie',
-          radius: '55%',
-          data: [
-            { value: 1, name: '视频广告' },
-            { value: 2, name: '联盟广告' },
-            { value: 3, name: '邮件营销' },
-            { value: 4, name: '直接访问' },
-            { value: 5, name: '搜索引擎' },
-          ],
-        },
-      ],
-    }
-    myChart.setOption(option)
-    myChart1.setOption(option1)
   },
   methods: {
     async getstatistics() {
       this.searchForm.hotel_id = this.userInfo.hotel_id
+      this.searchForm.start_time = this.searchDate[0]
+      this.searchForm.end_time = this.searchDate[1]
       await statistics(this.searchForm).then((res) => {
-        console.log(res.data)
         this.datalist = res.data
-        this.dasfas()
+        this.showEarch()
       })
     },
-    dasfas() {
+    showEarch() {
+      this.datatime = []
+      this.datadata = []
+
       this.datalist.forEach((item) => {
-        // console.log(item.data)
-        // console.log(item.time)
         this.datatime.push(item.time)
-        console.log(this.datatime);
+        this.datadata.push(item.data)
       })
+      this.earch()
+    },
+    earch() {
+      // 初始化echarts实例
+      var myChart = echarts.init(document.getElementById('main'))
+      var myChart1 = echarts.init(document.getElementById('main1'))
+      // 配置参数
+      var option = {
+        tooltip: {},
+        legend: { data: ['订单'] },
+        xAxis: { data: this.datatime },
+        yAxis: {},
+        series: [{ name: '订单', type: 'bar', data: this.datadata }],
+      }
+      var option1 = {
+        series: [
+          {
+            name: '访问来源',
+            type: 'pie',
+            radius: '55%',
+            data: [
+              { value: 1, name: '视频广告' },
+              { value: 2, name: '联盟广告' },
+              { value: 3, name: '邮件营销' },
+              { value: 4, name: '直接访问' },
+              { value: 5, name: '搜索引擎' },
+            ],
+          },
+        ],
+      }
+
+      myChart.setOption(option)
+      myChart1.setOption(option1)
+    },
+    search() {
+      this.getstatistics()
     },
   },
 }
