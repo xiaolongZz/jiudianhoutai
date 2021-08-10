@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { Message } from 'element-ui'
 // 创建一个axios实例
-axios.defaults.baseURL = 'http://api-dev.shall-buy.top', // url = base url + request url
+axios.defaults.baseURL = process.env.VUE_APP_BASE_API, // url = base url + request url
     // withCredentials: true, // 当跨域请求时发送cookie
     axios.defaults.timeout = 30000; // 请求超时
 
@@ -10,6 +10,9 @@ axios.defaults.baseURL = 'http://api-dev.shall-buy.top', // url = base url + req
 axios.interceptors.request.use(
     config => {
         // 在发送请求之前的处理
+        if (config.method == 'get' && config.url.includes('https://restapi.amap.com')) {
+            return config
+        }
         config.headers.Authorization = window.sessionStorage.getItem("token")
         return config
     },

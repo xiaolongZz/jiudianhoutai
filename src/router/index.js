@@ -15,6 +15,8 @@ import RoomDetail from '../views/room/RoomDetail.vue'
 import Facilities from '../views/set/Facilities.vue'
 import Role from '../views/set/Role.vue'
 import AddRole from '../views/set/AddRole.vue'
+import Account from '../views/set/Account.vue'
+import FacilitiesDetails from '../views/set/FacilitiesDetails.vue'
 
 Vue.use(VueRouter)
 
@@ -37,6 +39,8 @@ const routes = [
     { path: '/role', component: Role },
     { path: '/role/addrole', component: AddRole },
     { path: '/orderList/orderdetail', component: OrderDetail },
+    { path: '/account', component: Account },
+    { path: '/facilitiesDetails', component: FacilitiesDetails },
     ]
   },
 

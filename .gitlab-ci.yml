@@ -1,0 +1,4 @@
+include:
+  - project: root/ci
+    ref: master
+    file: 'front.yml'

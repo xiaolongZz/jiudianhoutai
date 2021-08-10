@@ -124,6 +124,11 @@ let hotellableSelect = (obj) => {
 
 //*************************************************************财务管理相关接口***************************************************************** */
 //*************************************************************系统设置相关接口***************************************************************** */
+
+//酒店基础设置详情
+let getDetails = (obj) => {
+    return axios.post('/hotelv2/index/merchant/hotel/getDetails', obj)
+}
 // 员工信息
 let getUserInfo = (obj) => {
     return axios.post('/hotelv2/index/merchant/user/getUserInfo', obj)
@@ -131,6 +136,10 @@ let getUserInfo = (obj) => {
 // 员工账户信息
 let getUser = (obj) => {
     return axios.post('/hotelv2/index/merchant/user/getUser', obj)
+}
+// 酒店已勾选的设施
+let getHotelClassify = (obj) => {
+    return axios.post('/hotelv2/index/merchant/hotel/getHotelClassify', obj)
 }
 // 修改员工状态
 let modifyStatus = (obj) => {
@@ -173,10 +182,12 @@ let editRole = (obj) => {
     return axios.post('/hotelv2/index/merchant/role/editRole', obj)
 }
 //高德地图坐标转换定位
-const restapiLongitudeLatitude=()=>{
-    return axios.get(`https://restapi.amap.com/v3/assistant/inputtips?key=83ac6df73e7176011d65a143204ad653`)
+const search = (keywords) => {
+    return axios.get(`https://restapi.amap.com/v3/assistant/inputtips`,{
+        keywords:keywords,
+        key:'a449a004e395c556758825af547fc90d'
+    })
 }
-
 export {
     bizLogin,
     passReset,
@@ -215,9 +226,11 @@ export {
     createRoomClassify,
     getUser,
     orderOption,
-    restapiLongitudeLatitude,
+    search,
     orderList,
     orderDetails,
     deleteOrder,
-    statistics
+    statistics,
+    getDetails,
+    getHotelClassify
 }

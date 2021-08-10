@@ -1,112 +1,78 @@
 <template>
   <div>
-    <span>请选择地点</span>
-    <el-divider></el-divider>
-    <el-input placeholder="请输入相关地址来查找相关位置" v-model="ruleForm.searchInput" class="input-with-select">
-      <el-button slot="append" icon="el-icon-search" @click="searchByadd"></el-button>
-    </el-input>
     <div id="container"></div>
+    <div class="searbox">
+      <div><el-input placeholder="请输入相关地址来查找相关位置" v-model="searchInput" class="searInput" @input="seInput"> </el-input></div>
+      <div class="tipList">
+        <div v-for="(item, index) in tipsList" :key="index" class="tips" @click="clickTips(item.location)">
+          {{ item.name }}
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 <script>
+import { search } from '../../assets/api/index.js'
 export default {
   data() {
     return {
       map: null,
-      ruleForm: {
-        address: '',
-        long: '',
-        lat: '',
-        searchInput: '阿克苏',
-      },
       lnglatXY: [],
+      searchInput: '',
+      timer: null,
+      tipsList: [],
     }
   },
   mounted() {
     this.init()
-    // this.map = new AMap.Map('container', {
-    //   viewMode: '2D', // 默认使用 2D 模式，如果希望使用带有俯仰角的 3D 模式，请设置 viewMode: '3D',
-    //   zoom: 15, //初始化地图层级
-    //   // center: [116.397428, 39.90923], //初始化地图中心点
-    // })
-    // //为地图注册click事件获取鼠标点击出的经纬度坐标
-    // this.map.on('click', (e) => {
-    //   // console.log(e.lnglat.lng, e.lnglat.lat)
-    //   this.lng = e.lnglat.lng
-    //   this.lat = e.lnglat.lat
-    //   this.$emit('func', this.lng, this.lat)
-    //   this.map.add(marker)
-    //   console.log(marker)
-    //   this.map.setFitView()
-    // })
-    // var marker = new AMap.Marker({
-    //   icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png',
-    //   position: [this.lng, this.lat],
-    //   anchor: 'bottom-center',
-    // })
   },
   created() {},
   methods: {
     init() {
-      let that = this
-      var map = new AMap.Map('container', {
+      this.map = new AMap.Map('container', {
+        zoom: 11, //级别
         resizeEnable: true,
-        zoom: 15,
       })
-      AMap.plugin('AMap.Geolocation', function () {
-        //异步加载插件
-        var geolocation = new AMap.Geolocation()
-        map.addControl(geolocation)
-      })
-      var geocoder, marker
-      function regeocoder(lnglatXY, that) {
-        AMap.plugin('AMap.Geocoder', function () {
-          var geocoder = new AMap.Geocoder({
-            radius: 1000,
-            extensions: 'all',
-          })
-          geocoder.getAddress(lnglatXY, function (status, result) {
-            if (status === 'complete' && result.info === 'OK') {
-              that.ruleForm.address = result.regeocode.formattedAddress
-            }
-          })
-          if (!marker) {
-            marker = new AMap.Marker()
-            map.add(marker)
-          }
-          marker.setPosition(lnglatXY)
+      let _this = this
+      //绑定点击事件
+      this.map.on('click', function (e) {
+        _this.map.clearMap()
+        let marker = new AMap.Marker({
+          icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png',
+          position: [e.lnglat.getLng(), e.lnglat.getLat()],
         })
-      }
-      map.on('click', function (e) {
-        var lnglatXY = [e.lnglat.getLng(), e.lnglat.getLat()]
-        regeocoder(lnglatXY, that)
-        that.ruleForm.long = e.lnglat.getLng()
-        that.ruleForm.lat = e.lnglat.getLat()
-        that.$emit('func', that.ruleForm.long, that.ruleForm.lat, that.ruleForm.address)
+        _this.map.add(marker)
+        _this.lnglatXY[0] = e.lnglat.getLng()
+        _this.lnglatXY[1] = e.lnglat.getLat()
+        _this.$emit('func', _this.lnglatXY[0], _this.lnglatXY[1])
       })
     },
-    searchByadd() {
-      let that = this
-      this.map = new AMap.Map('container', {
-        resizeEnable: true,
-        zoom: 15,
+    clickTips(location) {
+      if (location && location.length == 0) {
+        this.$message.warning('请输入更加详细的地址!')
+        return false
+      }
+      let e = location.split(',')
+      this.map.clearMap()
+      let marker = new AMap.Marker({
+        icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png',
+        position: [e[0], e[1]],
       })
-      var geocoder, marker
-      AMap.plugin('AMap.Geocoder', () => {
-        var geocoder = new AMap.Geocoder({
-          radius: 1000,
-          extensions: 'all',
+      this.map.add(marker)
+      this.map.setFitView()
+      this.lnglatXY[0] = e[0]
+      this.lnglatXY[1] = e[1]
+      this.$emit('func', this.lnglatXY[0], this.lnglatXY[1])
+    },
+    seInput(value) {
+      if (this.timer) {
+        clearTimeout(this.timer)
+      }
+      this.timer = setTimeout(async () => {
+        await search(value).then((res) => {
+          this.tipsList = res.tips
         })
-        geocoder.getLocation(this.ruleForm.searchInput, function (status, result) {
-          if (status === 'complete' && result.geocodes.length) {
-            that.lnglatXY[0] = result.geocodes[0].location.lng
-            that.lnglatXY[1] = result.geocodes[0].location.lat
-            that.map.panTo(that.lnglatXY)
-          } else {
-            log.error('根据地址查询位置失败')
-          }
-        })
-      })
+      }, 500)
     },
   },
 }
@@ -115,5 +81,31 @@ export default {
 #container {
   height: 40vh;
   margin-top: 15px;
+  position: relative;
+}
+.searbox {
+  text-align: right;
+  position: absolute;
+  right: 20px;
+  top: 100px;
+  z-index: 999;
+  background: white;
+  .searInput {
+    width: 230px;
+  }
+  .tipList {
+    width: 200px;
+    text-align: left;
+    > div:hover {
+      cursor: pointer;
+      background-color: #cae1ff;
+    }
+    .tips {
+      width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
 }
 </style>

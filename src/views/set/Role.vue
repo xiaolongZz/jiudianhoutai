@@ -12,7 +12,7 @@
         <el-table-column prop="name" label="角色" width="200px"></el-table-column>
         <el-table-column prop="menu" label="权限">
           <template slot-scope="scope">
-            <span v-for="(item, index) in scope.row.menu" :key="index"> {{ item }} </span>
+            <el-tag v-for="(item, index) in scope.row.menu" :key="index" style="margin-right:10px"> {{item}} </el-tag>
           </template>
         </el-table-column>
         <el-table-column label="权限编辑" width="200px">

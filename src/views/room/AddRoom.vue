@@ -158,7 +158,7 @@ export default {
       },
       uploadPicnum: 0, // 上传成功的图片数量
       num: 0,
-      roomPic:[]
+      roomPic: [],
     }
   },
   created() {
@@ -174,7 +174,7 @@ export default {
       }
       await getRoomDetail({ id: this.roomId }).then((res) => {
         this.roomInfo = res.data
-        this.roomPic= res.data.room_pictures
+        this.roomPic = res.data.room_pictures
       })
     },
     async getclassifySelect() {
@@ -185,18 +185,21 @@ export default {
       })
     },
     previousStep() {
-      if (this.activeIndex === 1 && this.activeTabIndex === '1') {
+      if (this.activeIndex == 1 && this.activeTabIndex == '1') {
         this.activeIndex--
         this.activeTabIndex = '0'
       }
     },
     nextStep() {
-      if (this.activeIndex === 0 && this.activeTabIndex === '0') {
+      if (this.activeIndex == 0 && this.activeTabIndex == '0') {
         this.activeIndex++
         this.activeTabIndex = '1'
       }
     },
-    tabClicked() {},
+    tabClicked(data) {
+      this.activeIndex = parseFloat(data.index)
+      this.activeTabIndex = data.index.toString()
+    },
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url
       this.dialogVisible = true

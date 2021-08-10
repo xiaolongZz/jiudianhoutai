@@ -410,14 +410,17 @@ export default {
     },
     allRoom() {
       this.status = ''
+      this.searchForm.status = ''
       this.RoomList()
     },
     onlineRoom() {
       this.status = 1
+      this.searchForm.status = 1
       this.RoomList()
     },
     enlineRoom() {
       this.status = 0
+      this.searchForm.status = 0
       this.RoomList()
     },
     selectRow(selection) {
