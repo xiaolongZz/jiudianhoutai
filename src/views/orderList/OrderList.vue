@@ -99,7 +99,7 @@
         <el-button>全部订单</el-button> -->
       </div>
       <div class="orderlist">
-        <el-table :data="orderList" border stripe style="width: 100%">
+        <el-table :data="orderList" border stripe style="width: 100%" :header-cell-style="{ textAlign: 'center' }" :cell-style="{ textAlign: 'center' }">
           <el-table-column type="index"></el-table-column>
           <el-table-column prop="order_sn" label="订单编号" width="200px"></el-table-column>
           <el-table-column prop="nikename" label="会员昵称"></el-table-column>

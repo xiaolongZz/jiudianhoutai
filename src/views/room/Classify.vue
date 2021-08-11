@@ -11,7 +11,7 @@
 
       <div class="title">分类列表</div>
 
-      <el-table :data="classifyList" border style="width: 100%">
+      <el-table :data="classifyList" border style="width: 100%" :header-cell-style="{ textAlign: 'center' }" :cell-style="{ textAlign: 'center' }">
         <el-table-column prop="name" label="分类名称"> </el-table-column>
         <el-table-column prop="created_at" label="添加时间"> </el-table-column>
         <el-table-column prop="status" label="状态">

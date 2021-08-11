@@ -56,7 +56,7 @@
             </div>
           </div>
         </div>
-        <el-table class="roomListTable" :data="roomListData" style="width: 100%" border @select="selectRow" @select-all="selectAllRow">
+        <el-table class="roomListTable" :data="roomListData" style="width: 100%" border @select="selectRow" @select-all="selectAllRow" :header-cell-style="{ textAlign: 'center' }" :cell-style="{ textAlign: 'center' }">
           <el-table-column type="selection" width="55"> </el-table-column>
           <el-table-column type="index" width="55"> </el-table-column>
           <el-table-column prop="room_name" label="房名">

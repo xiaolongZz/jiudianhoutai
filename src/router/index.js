@@ -17,6 +17,10 @@ import Role from '../views/set/Role.vue'
 import AddRole from '../views/set/AddRole.vue'
 import Account from '../views/set/Account.vue'
 import FacilitiesDetails from '../views/set/FacilitiesDetails.vue'
+import Message from '../views/set/Message.vue'
+import Earnings from '../views/finance/Earnings.vue'
+import Record from '../views/finance/Record.vue'
+import Withdrawal from '../views/finance/Withdrawal.vue'
 
 Vue.use(VueRouter)
 
@@ -41,6 +45,10 @@ const routes = [
     { path: '/orderList/orderdetail', component: OrderDetail },
     { path: '/account', component: Account },
     { path: '/facilitiesDetails', component: FacilitiesDetails },
+    { path: '/message', component: Message },
+    { path: '/earnings', component: Earnings },
+    { path: '/record', component: Record },
+    { path: '/earnings/Withdrawal', component: Withdrawal },
     ]
   },
 

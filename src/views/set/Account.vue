@@ -8,7 +8,7 @@
       </el-breadcrumb>
       <el-button type="primary" class="addRole" @click="goAddAccount">添加账号</el-button>
       <div class="title">账号列表</div>
-      <el-table :data="accountLists" border style="width: 100%">
+      <el-table :data="accountLists" border style="width: 100%" :header-cell-style="{ textAlign: 'center' }" :cell-style="{ textAlign: 'center' }">
         <el-table-column prop="status" label="状态"></el-table-column>
         <el-table-column label="角色" prop="role">
           <template slot-scope="scope">

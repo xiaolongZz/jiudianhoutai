@@ -32,7 +32,7 @@
         <el-button @click="search">查询</el-button>
       </div>
       <div class="evaluationList">
-        <el-table :data="evaluationData" border style="width: 100%">
+        <el-table :data="evaluationData" border style="width: 100%" :header-cell-style="{ textAlign: 'center' }" :cell-style="{ textAlign: 'center' }">
           <el-table-column prop="order_sn" label="订单编号"></el-table-column>
           <el-table-column prop="room_name" label="房型"></el-table-column>
           <el-table-column prop="content" label="评价信息"> </el-table-column>
